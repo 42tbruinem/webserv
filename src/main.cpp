@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 21:00:20 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/24 13:05:27 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 19:16:27 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@ int		main(int argc, char **argv)
 	{
 		WebServer	webserv(argv[1]);
 		webserv.run();
+	}
+	catch (CleanExit& e)
+	{
+		std::cout << e.what() << std::endl;
+		return (e.exit_code);
 	}
 	catch (std::exception& e)
 	{

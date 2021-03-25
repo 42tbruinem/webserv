@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:43:37 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 19:02:58 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,18 +155,9 @@ namespace ft
 		exit(EXIT_FAILURE);
 	}
 
-	void	*memset(void *b, int c, size_t len)
+	void	memset(void *b, int c, size_t len)
 	{
-		unsigned char	*str;
-
-		str = static_cast<unsigned char*>(b);
-		while (len > 0)
-		{
-			*str = c;
-			str++;
-			len--;
-		}
-		return (b);
+		std::fill((unsigned char*)b, (unsigned char*)b + len, c);
 	}
 
 	unsigned short	hostToNetworkShort(unsigned short x)
@@ -174,24 +165,20 @@ namespace ft
 		return ((((x) >> 8) & 0xff ) | (((x) & 0xff) << 8));
 	}
 
-	char	*strdup(const char *s1)
+	char	*strdup(const char *str)
 	{
-		char	*p;
-		int		len = 0;
-		int		i = 0;
+		char	*dup;
+		size_t	i = 0;
 
-		while (s1[i])
-		{
-			len++;
+		while (str[i])
 			i++;
-		}
-		p = (char*)malloc((sizeof(char) * len) + 1);
-		if (p == 0)
+		dup = (char*)malloc(sizeof(char) * (i + 1));
+		if (dup == NULL)
 			return (NULL);
-		for (int j = 0; j < len; j++)
-			p[j] = s1[j];
-		p[len] = '\0';
-		return (p);
+		for (size_t j = 0; j < i; j++)
+			dup[j] = str[j];
+		dup[i] = '\0';
+		return (dup);
 	}
 
 	std::string	toUpperStr(const std::string& str)
@@ -234,8 +221,10 @@ namespace ft
 		return (result);
 	}
 
-	std::string rawChar(char c) {
-		switch (c) {
+	std::string rawChar(char c)
+	{
+		switch (c)
+		{
 			case '\a': return "\\a";
 			case '\b': return "\\b";
 			case '\t': return "\\t";

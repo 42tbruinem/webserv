@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:29:48 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 19:16:11 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <sys/time.h>
 # include <sys/types.h>
 # include <unistd.h>
+# include <exception>
 
 # define DEFAULT_CONFIG "./config/default.conf"
 
@@ -39,6 +40,17 @@
 // };
 
 //Heart of the program, contains the main loop that handles all the requests/responses
+
+class CleanExit : public std::runtime_error
+{
+	public:
+		explicit CleanExit(const char *what_arg, int exit_code) _GLIBCXX_TXN_SAFE;
+		virtual ~CleanExit() _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_USE_NOEXCEPT;
+		int	exit_code;
+	private:
+		CleanExit();
+		CleanExit& operator = (const CleanExit& rhs);
+};
 
 class WebServer : public Context
 {
