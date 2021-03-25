@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 01:22:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/01 15:07:48 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ std::string	Location::get_location() const
 }
 
  Location& Location::operator = (const Location& other)
- {
+ 
+{
  	if (this != &other)
  	{
  		this->keywords = other.keywords;

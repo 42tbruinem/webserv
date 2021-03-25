@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:30:08 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/02/16 15:08:14 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:19 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ class Server : public Context
 		void	handle_args(std::list<std::string> args);
 
 		std::map<std::string, Location*, ft::size_compare>	locations;
-		int									_server_fd;
+		int									server_fd;
 
 	private:
 		Server();
-		struct sockaddr_in			_address;
+		struct sockaddr_in			address;
 };
 
 #endif

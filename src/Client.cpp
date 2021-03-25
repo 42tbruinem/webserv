@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:33:47 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:54 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Client::Client(Server* server) : server(server)
 {
 	ft::memset(&this->address, '\0', sizeof(this->address));
 	this->addr_len = sizeof(this->address);
-	this->fd = accept(server->_server_fd, (struct sockaddr*)&this->address, &this->addr_len);
+	this->fd = accept(server->server_fd, (struct sockaddr*)&this->address, &this->addr_len);
 	if (this->fd == -1)
 		throw std::runtime_error("Error: failed to open a new client connection");
 	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)

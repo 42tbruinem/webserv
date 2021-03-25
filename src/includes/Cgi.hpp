@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/17 14:12:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/02/25 14:18:56 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:20 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 # include "Request.hpp"
 
-class Cgi {
+class Cgi 
+{
 
 public:
 	Cgi();
@@ -31,8 +32,8 @@ public:
 private:
 	void	set_env(Request *req, std::string path, std::string host, std::string port, std::string phpcgi);
 
-	std::map<std::string, std::string>	_vars;
-	char								**_env;
+	std::map<std::string, std::string>	vars;
+	char								**env;
 	char								*args[3];
 };
 

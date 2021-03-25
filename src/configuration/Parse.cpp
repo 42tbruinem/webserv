@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/05 18:58:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:32:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ bool	Parse::collect_args(std::list<std::string>::iterator& it, std::list<std::st
 
 void	Parse::handle_body(std::queue<Parse>& children, Context* child, std::list<std::string>::iterator& it, std::list<std::string>& tokens)
 {
-	std::list<std::string>	childrenTokens;
+	std::list<std::string>	children_tokens;
 
 	//std::cout << "BODY ENCOUNTERED" << std::endl;
 	if (!child)
@@ -77,9 +77,9 @@ void	Parse::handle_body(std::queue<Parse>& children, Context* child, std::list<s
 	std::list<std::string>::iterator	end = this->endOfBlock(it, tokens.end());
 	if (end == tokens.end())
 		throw std::runtime_error("Error: Unclosed block in configuration");
-	childrenTokens.splice(childrenTokens.begin(), this->tokens, it--, end);
+	children_tokens.splice(children_tokens.begin(), this->tokens, it--, end);
 	it++;
-	children.push(Parse(child, childrenTokens));
+	children.push(Parse(child, children_tokens));
 }
 
 void	Parse::parse()

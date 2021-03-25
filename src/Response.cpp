@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/22 14:30:27 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:15 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 
 bool g_sigpipe;
 
-Response::Response() : server_name(""), location_block(NULL), isDir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
+Response::Response() : server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
 {
 	this->status_codes[200] = "200 OK";
 	this->status_codes[201] = "201 Created";
@@ -45,7 +45,8 @@ Response::Response() : server_name(""), location_block(NULL), isDir(false), root
 	this->status_codes[505] = "505 HTTP Version Not Supported";
 }
 
-Response::Response(const Response& other) {
+Response::Response(const Response& other) 
+{
 
 	*this = other;
 }
@@ -70,7 +71,7 @@ Response& Response::operator = (const Response& other)
 		this->response_code = other.response_code;
 		this->status_codes = other.status_codes;
 		this->location_block = other.location_block;
-		this->isDir = other.isDir;
+		this->is_dir = other.is_dir;
 		this->server_name = other.server_name;
 		this->root = other.root;
 		this->location_key = other.location_key;
@@ -306,7 +307,7 @@ void	Response::checkPath(void)
 
 			if (autoindex)
 			{
-				this->isDir = true;
+				this->is_dir = true;
 				if (this->path[this->path.length() - 1] != '/')
 					this->response_code = 301;
 			}
@@ -415,7 +416,7 @@ void	Response::setContentType()
 {
 	if (this->response_code == 201 || this->response_code == 204)
 		return;
-	if (this->response_code != 200 || this->isDir)
+	if (this->response_code != 200 || this->is_dir)
 	{
 		this->headers["Content-Type"] = "text/html";
 		return;
@@ -469,7 +470,7 @@ void	Response::setBody(void)
 	//if (this->path.size())
 	//	std::cout << "BODY PATH: " << this->path << std::endl;
 
-	if (this->isDir)
+	if (this->is_dir)
 	{
 		this->listDirectory();
 		return;
@@ -889,7 +890,7 @@ void	Response::setLocation(void)
 
 void	Response::setModified(void)
 {
-	if (this->response_code != 200 || this->isDir || this->req.get_method() == "POST")
+	if (this->response_code != 200 || this->is_dir || this->req.get_method() == "POST")
 		return;
 
 	struct stat	result;

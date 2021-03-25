@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/16 15:00:27 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 Message::Message() {}
 
-Message::Message(const Message& other) {
+Message::Message(const Message& other) 
+{
 
 	*this = other;
 }

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:33:47 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,7 +296,8 @@ bool	Request::parseLine(std::string line)
 	return (true);
 }
 
-void Request::splitRequest(void) {
+void Request::splitRequest(void) 
+{
 
 	std::vector<std::string>::iterator	header_end;
 

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/22 13:17:33 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:18:14 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Response : public Message
 		int							response_code;
 		std::string 				server_name;
 		Location*					location_block;
-		bool						isDir;
+		bool						is_dir;
 		std::string					root;
 		std::string					location_key;
 		std::string					response;

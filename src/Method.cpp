@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 20:24:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:31:53 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 #include <string>
 #include <vector>
 
-const char * const Method::names[] = {
+const char * const Method::names[] = 
+{
 	"OPTIONS",
 	"GET",
 	"HEAD",

@@ -1,0 +1,11 @@
+Rewrite CGI to use 2 pipes instead of in/out file
+write legible checks for status_codes
+introduce defines for status codes
+remove magic numbers:
+	max_connections
+split get_lines into something readable and comprehensible
+
+
+make sure every socket only gets read from once with every select call
+
+get rid of "42 coplien" unused useless functions
