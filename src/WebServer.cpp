@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:57:20 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:31:57 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,6 @@
 #include "Context.hpp"
 
 //Constructors
-
-WebServer::WebServer(const WebServer & other)
-{
-	*this = other;
-}
 
 WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 {
@@ -65,24 +60,6 @@ WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 	}
 	if (this->servers.empty())
 		throw std::runtime_error("Error: All of the specified servers failed to initialize");
-}
-
-//Operators
-
-WebServer&	WebServer::operator=(const WebServer & other)
-{
-	if (this != &other)
-	{
-		this->servers = other.servers;
-		this->clients = other.clients;
-		this->requests = other.requests;
-		this->responses = other.responses;
-		this->read_sockets = other.read_sockets;
-		this->write_sockets = other.write_sockets;
-		this->server_names = other.server_names;
-	}
-
-	return *this;
 }
 
 //Destructor
@@ -142,16 +119,65 @@ void	WebServer::closeSignal(int status)
 	exit(status);
 }
 
-void	WebServer::readRequests()
+void	WebServer::readRequests(fd_set& read_set, std::vector<int>& closed_clients)
 {
+	int fd;
 
-	
+	//probably need to actually use this, the response might fail to send, causing us to have to close the client.
+	(void)closed_clients;
+	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		fd = it->first;
+		if (FD_ISSET(fd, &read_set))
+		{
+			if (!requests[fd].size())
+				requests[fd].push(Request());
+			Request &current_request = requests[fd].front();
+			current_request.process(fd);
+			if (current_request.getDone())
+			{
+				responses[fd].push(Response());
+				Response &current_response = responses[fd].back();
+				current_response.setRequest(requests[fd].front());
+				current_response.locationMatch(this->server_names);
+				current_response.composeResponse();
+				requests[fd].pop();
+				if (requests[fd].empty())
+					FD_CLR(fd, &this->read_sockets);
+				FD_SET(fd, &this->write_sockets);
+			}
+		}
+	}
 }
 
-void	WebServer::writeResponses()
+void	WebServer::writeResponses(fd_set& write_set, std::vector<int>& closed_clients)
 {
+	int fd;
 
-	
+	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		fd = it->first;
+		if (FD_ISSET(fd, &write_set))
+		{
+			Response& current_response = responses[fd].front();
+			current_response.sendResponse(fd);
+			if (current_response.getFinished())
+			{
+				if (current_response.getStatusCode() != 400)
+					std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+				if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
+					closed_clients.push_back(fd);
+				responses[fd].pop();
+				if (responses[fd].empty())
+				{
+					FD_CLR(fd, &this->write_sockets);
+					FD_SET(fd, &this->read_sockets);
+				}
+			}
+			else
+				break;
+		}
+	}
 }
 
 void	WebServer::run()
@@ -173,54 +199,8 @@ void	WebServer::run()
 		if (select(max_fd, &read_set, &write_set, NULL, NULL) == -1)
 			throw std::runtime_error("Error: select() returned an error");
 		this->addNewClients(read_set);
-		for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end();)
-		{
-			int fd = it->first;
-			if (FD_ISSET(fd, &write_set))
-			{
-				Response& current_response = responses[fd].front();
-				current_response.sendResponse(fd);
-				if (current_response.getFinished())
-				{
-					if (current_response.getStatusCode() != 400)
-						std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
-					if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
-						closed_clients.push_back(fd);
-					responses[fd].pop();
-					if (responses[fd].empty())
-					{
-						FD_CLR(fd, &this->write_sockets);
-						FD_SET(fd, &this->read_sockets);
-					}
-				}
-				else
-					break;
-			}
-			it++;
-		}
-		for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end();)
-		{
-			int fd = it->first;
-			if (FD_ISSET(fd, &read_set))
-			{
-				if (!requests[fd].size())
-					requests[fd].push(Request());
-				Request &current_request = requests[fd].front();
-				current_request.process(fd);
-				if (current_request.getDone()) {
-					responses[fd].push(Response());
-					Response &current_response = responses[fd].back();
-					current_response.setRequest(requests[fd].front());
-					current_response.locationMatch(this->server_names);
-					current_response.composeResponse();
-					requests[fd].pop();
-					if (requests[fd].empty())
-						FD_CLR(fd, &this->read_sockets);
-					FD_SET(fd, &this->write_sockets);
-				}
-			}
-			it++;
-		}
+		this->writeResponses(write_set, closed_clients);
+		this->readRequests(read_set, closed_clients);
 		for (size_t i = 0; i < closed_clients.size(); i++)
 			this->deleteClient(closed_clients[i]);
 	}

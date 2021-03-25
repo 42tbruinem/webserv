@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 09:37:47 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:43:37 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:23:34 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 # include "Method.hpp"
 # include "Utilities.hpp"
 
+#define DEFAULT_MAX_BODY_SIZE 1000000
+
 bool	Authorization::operator () (std::string userpass) const
 {
 	if (this->enabled == false)
 		return (true);
 	userpass = ft::base64Decode(userpass);
-	//std::cout << "USER:PASS: " << userpass << std::endl;
 	if (userpass.find(':') == std::string::npos)
 		return (false);
 	std::pair<std::string, std::string>	user_and_pass = ft::getKeyval(userpass, ":");
@@ -53,7 +54,7 @@ Properties::Properties() :
 	root(""),
 	ip_port(std::pair<std::string, std::string>("0.0.0.0", "80")),
 	server_names(), index(), auto_index(false),
-	accepted_methods(), error_pages(), client_max_body_size(1000000),
+	accepted_methods(), error_pages(), client_max_body_size(DEFAULT_MAX_BODY_SIZE),
 	php_cgi(""), cgi_param(), ext()
 {
 	auth.enabled = false;

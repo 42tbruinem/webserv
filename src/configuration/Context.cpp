@@ -32,19 +32,6 @@ Context::Context() : properties(), parent(*this) {}
 //Child Context
 Context::Context(const Context& parent) : parent(parent) {}
 
-//We are using the 'copy constructor' for something else, so this isn't possible
-// Context&	Context::operator = (Context & rhs)
-// {
-// 	if (this != &rhs)
-// 	{
-// 		this->properties = rhs.properties;
-// 		for (size_t i = 0; i < rhs.children.size(); i++)
-// 			this->children.push_back(new Context(rhs.children[i]));
-// 	}
-
-// 	return *this;
-// }
-
 const Properties&	Context::getProperties() const
 {
 	return (this->properties);
@@ -58,7 +45,6 @@ void	Context::setProperties(const Properties& properties)
 
 Context *Context::key_server(const std::list<std::string>& args)
 {
-	//std::cout << "CREATE_SERVER CALLED" << std::endl;
 	if (args.size())
 		throw std::runtime_error("Error: Arguments provided to 'server'");
 	Server *elem = new Server(*this);
@@ -85,7 +71,6 @@ Context	*Context::key_location(const std::list<std::string>& args)
 
 Context *Context::key_listen(const std::list<std::string>& args)
 {
-	//std::cout << "LISTEN" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: Invalid amount of arguments given to 'listen'");
 	std::string ip_port = args.front();
@@ -113,7 +98,6 @@ Context *Context::key_listen(const std::list<std::string>& args)
 
 Context *Context::key_server_name(const std::list<std::string>& args)
 {
-	//std::cout << "SERVER_NAME" << std::endl;
 	if (!args.size())
 		throw std::runtime_error("Error: No arguments given to 'server_name'");
 	for (std::list<std::string>::const_iterator it = args.begin(); it != args.end(); it++)
@@ -123,7 +107,6 @@ Context *Context::key_server_name(const std::list<std::string>& args)
 
 Context *Context::key_client_max_body_size(const std::list<std::string>& args)
 {
-	//std::cout << "MAX_CLIENT_BODY_SIZE" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: Invalid amount of arguments given to 'client_max_body_size'");
 	std::string value = args.front();
@@ -161,7 +144,6 @@ Context *Context::key_client_max_body_size(const std::list<std::string>& args)
 
 Context *Context::key_autoindex(const std::list<std::string>& args)
 {
-	//std::cout << "AUTOINDEX" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: No arguments given to 'autoindex'");
 	std::string value = args.front();
@@ -174,7 +156,6 @@ Context *Context::key_autoindex(const std::list<std::string>& args)
 //might want to add a check to see if it's a valid path..
 Context *Context::key_index(const std::list<std::string>& args)
 {
-	//std::cout << "INDEX" << std::endl;
 	if (!args.size())
 		throw std::runtime_error("Error: No arguments given to 'index'");
 	this->properties.index.clear();
@@ -185,7 +166,6 @@ Context *Context::key_index(const std::list<std::string>& args)
 
 Context *Context::key_error_page(const std::list<std::string>& args)
 {
-	//std::cout << "ERROR_PAGE" << std::endl;
 	if (args.size() < 2)
 		throw std::runtime_error("Error: No arguments given to 'error_page'");
 	std::list<std::string>::const_iterator end_of_statuscodes = args.end();
@@ -201,7 +181,6 @@ Context *Context::key_error_page(const std::list<std::string>& args)
 
 Context *Context::key_limit_except(const std::list<std::string>& args)
 {
-	//std::cout << "LIMIT_EXCEPT" << std::endl;
 	if (!args.size())
 		throw std::runtime_error("Error: No arguments given to 'limit_except'");
 	for (std::map<std::string, bool>::iterator it = this->properties.accepted_methods.begin(); it != this->properties.accepted_methods.end(); it++)
@@ -213,8 +192,6 @@ Context *Context::key_limit_except(const std::list<std::string>& args)
 
 Context* Context::key_cgi_param(const std::list<std::string>& args)
 {
-	//std::cout << "CGI_PARAM" << std::endl;
-
 	if (args.size() != 2)
 		throw std::runtime_error("Error: Invalid amount of arguments given to 'cgi_param'");
 	if (!ft::onlyConsistsOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ_"))
@@ -228,7 +205,6 @@ Context* Context::key_cgi_param(const std::list<std::string>& args)
 //Might want to make sure that it's actually a path
 Context *Context::key_root(const std::list<std::string>& args)
 {
-	//std::cout << "ROOT" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: No arguments given to 'root'");
 	this->properties.root = args.front();
@@ -237,7 +213,6 @@ Context *Context::key_root(const std::list<std::string>& args)
 
 Context *Context::key_php_cgi(const std::list<std::string>& args)
 {
-	//std::cout << "PHP_CGI" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: Wrong amount of arguments given to 'php-cgi'");
 	this->properties.php_cgi = args.front();
@@ -246,7 +221,6 @@ Context *Context::key_php_cgi(const std::list<std::string>& args)
 
 Context *Context::key_auth_basic(const std::list<std::string>& args)
 {
-	//std::cout << "AUTH_BASIC" << std::endl;
 	if (!args.size())
 		throw std::runtime_error("Error: No arguments provided to 'auth_basic'");
 	this->properties.auth.enabled = true;
@@ -255,7 +229,6 @@ Context *Context::key_auth_basic(const std::list<std::string>& args)
 		argument += *it + ((++it == args.end()) ? "" : " ");
 	argument = ft::removeSet(argument, "\"\'");
 	this->properties.auth.realm = argument;
-	//std::cout << "REALM: " << argument << std::endl;
 	if (argument == "off")
 		this->properties.auth.enabled = false;
 	return (NULL);
@@ -263,7 +236,6 @@ Context *Context::key_auth_basic(const std::list<std::string>& args)
 
 Context *Context::key_ext(const std::list<std::string>& args)
 {
-	//std::cout << "EXT" << std::endl;
 	if (!args.size())
 		throw std::runtime_error("Error: No arguments provided to 'ext'");
 	for (std::list<std::string>::const_iterator it = args.begin(); it != args.end(); it++)
@@ -271,7 +243,7 @@ Context *Context::key_ext(const std::list<std::string>& args)
 	return (NULL);
 }
 
-bool	parse_htpasswd(std::map<std::string, std::string>& user_pass, std::string user_file)
+bool	parseHTPassword(std::map<std::string, std::string>& user_pass, std::string user_file)
 {
 	user_pass.clear();
 	int fd = open(user_file.c_str(), O_RDONLY);
@@ -314,12 +286,11 @@ bool	parse_htpasswd(std::map<std::string, std::string>& user_pass, std::string u
 
 Context *Context::key_auth_basic_user_file(const std::list<std::string>& args)
 {
-	//std::cout << "AUTH_BASIC_USER_FILE" << std::endl;
 	if (args.size() != 1)
 		throw std::runtime_error("Error: Invalid amount of arguments given to 'auth_basic_user_file'");
 	if (!this->properties.auth.enabled)
 		throw std::runtime_error("Error: 'auth_basic_user_file' provided for disabled 'auth_basic' authentication");
-	if (!parse_htpasswd(this->properties.auth.user_pass, args.front()))
+	if (!parseHTPassword(this->properties.auth.user_pass, args.front()))
 		throw std::runtime_error("Error: provided file either doesn't exist or does not conform to the htpasswd format");
 	return (NULL);
 }
@@ -352,7 +323,6 @@ Context	*Context::parseKeyword(std::string key, std::list<std::string> args)
 
 Context::~Context()
 {
-	//std::cout << "CONTEXT DECONSTRUCTOR!!!" << std::endl;
 	for (size_t i = 0; i < children.size(); i++)
 		delete children[i];
 	children.clear();

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:57:57 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:29:48 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,15 @@ class WebServer : public Context
 
 		void	deleteClient(int fd);
 		void	addNewClients(fd_set& read_set);
-		void	readRequests();
-		void	writeResponses();
+		void	readRequests(fd_set& read_set, std::vector<int>& closed_clients);
+		void	writeResponses(fd_set& write_set, std::vector<int>& closed_clients);
 		static void	closeSignal(int status);
+
+		WebServer(const WebServer& other);
+		WebServer& operator = (const WebServer& other);
 	public:
 		WebServer(char *config_path);
-		WebServer(const WebServer& other);
 		void	run();
-		WebServer& operator = (const WebServer& other);
 		~WebServer();
 };
 
