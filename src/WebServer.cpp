@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:31:57 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:38:44 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,28 @@
 
 //Constructors
 
+bool	identicalServersDetected(std::vector<Context*>& servers)
+{
+	std::map<std::string, const Properties*>	ports;
+
+	for (size_t i = 0 ; i < servers.size(); i++)
+	{
+		if (ports.count(servers[i]->getProperties().ip_port.second))
+		{
+			for (std::vector<std::string>::const_iterator it = servers[i]->getProperties().server_names.begin();
+				 it != servers[i]->getProperties().server_names.end(); it++)
+			{
+				std::vector<std::string> tmp = ports[servers[i]->getProperties().ip_port.second]->server_names;
+				if (std::find(tmp.begin(), tmp.end(), *it) != tmp.end())
+					return (true);
+			}
+		}
+		if (!servers[i]->getProperties().ip_port.second.empty())
+			ports[servers[i]->getProperties().ip_port.second] = &servers[i]->getProperties();
+	}
+	return (false);
+}
+
 WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 {
 	this->keywords.push_back("server");
@@ -31,22 +53,8 @@ WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 	Configuration	config(config_path, this);
 	config.parse();
 
-	std::map<std::string, const Properties*>	ports;
-	for (size_t i = 0 ; i < this->children.size(); i++)
-	{
-		if (ports.count(this->children[i]->getProperties().ip_port.second))
-		{
-			for (std::vector<std::string>::const_iterator it = this->children[i]->getProperties().server_names.begin();
-				 it != this->children[i]->getProperties().server_names.end(); it++)
-			{
-				std::vector<std::string> tmp = ports[this->children[i]->getProperties().ip_port.second]->server_names;
-				if (std::find(tmp.begin(), tmp.end(), *it) != tmp.end())
-					throw std::runtime_error("Error: detected multiple servers with the same port");
-			}
-		}
-		if (!this->children[i]->getProperties().ip_port.second.empty())
-			ports[this->children[i]->getProperties().ip_port.second] = &this->children[i]->getProperties();
-	}
+	if (identicalServersDetected(this->children))
+		throw std::runtime_error("Error: detected multiple servers with the same port");
 
 	for (size_t i = 0 ; i < this->children.size(); i++)
 	{

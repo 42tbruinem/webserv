@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:52:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:46:26 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,33 +139,6 @@ void	Response::sendResponse(int fd)
 		this->finished = true;
 }
 
-void	Response::printResponse(void) const
-{
-	std::cout << std::endl << "Response:" << std::endl;
-	std::cout << "  Headers:" << std::endl;
-	std::cout << "\t" << this->status_line << "\r" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++) {
-		std::cout << "\t" << it->first << ": " << it->second << "\r" << std::endl;
-	}
-
-	if (this->req.getMethod() != "HEAD")
-	{
-		int	amount_printed = 0;
-		std::cout << "  Body:" << std::endl;
-		for (std::vector<std::string>::const_iterator it = this->body.begin(); it != this->body.end(); it++)
-		{
-			if ((*it).length() > 1000)
-			{
-				std::cout << "\t" << ft::rawString((*it).substr(0, 1000)) << "..." << std::endl;
-				amount_printed++;
-			}
-			else
-				std::cout << "\t" << *it << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
 void	Response::composeResponse(void)
 {
 	if (!this->checkAuthorization())
@@ -249,8 +222,6 @@ void	Response::checkPath(void)
 	if (this->path == "" && this->req.getMethod() == "POST" && this->location_block->getProperties().root == "")
 		this->path = "/";
 
-	//std::cout << "final path: " << this->path << std::endl;
-
 	if (this->location_block->getProperties().root == "" && this->req.getMethod() == "POST")
 		return;
 
@@ -281,9 +252,9 @@ void	Response::checkPath(void)
 					fd = open((this->path + *it).c_str(), O_RDONLY);
 				if (fd != -1)
 				{
-				    if (this->path.size() && this->path[this->path.size() - 1] != '/')
-					    this->path += "/";
-                    this->path += *it;
+					if (this->path.size() && this->path[this->path.size() - 1] != '/')
+						this->path += "/";
+					this->path += *it;
 					close(fd);
 					return;
 				}
@@ -379,7 +350,6 @@ void	Response::handlePut(void)
 
 void	Response::setStatusLine(void)
 {
-	//std::cout << "RESPONSE CODE: " << this->response_code << std::endl;
 	this->status_line.append("HTTP/1.1 ");
 	this->status_line.append(this->status_codes[this->response_code]);
 }
@@ -454,9 +424,6 @@ void	Response::setBody(void)
 		this->setBodyError();
 		return;
 	}
-
-	//if (this->path.size())
-	//	std::cout << "BODY PATH: " << this->path << std::endl;
 
 	if (this->is_dir)
 	{
@@ -552,7 +519,6 @@ void	Response::setBodyError(void)
 	{
 
 		std::string errorpage = this->root + error_pages[this->response_code];
-		//std::cout << "Custom error page for " << this->response_code << " is: " << errorpage << std::endl;
 
 		int fd = open(errorpage.c_str(), O_RDONLY);
 		if (fd != -1)
@@ -713,7 +679,6 @@ Server*	Response::serverMatch(const std::map<Server*, std::vector<std::string> >
 	if (host_uri.getPort() == "")
 		host_uri.setPort("80");
 
-	//std::cout << "'host' of HOST field: " << host_uri.getHost() << std::endl;
 	ip_port_match.second = false;
 	ip_port_match.first = 0;
 
@@ -723,32 +688,22 @@ Server*	Response::serverMatch(const std::map<Server*, std::vector<std::string> >
 		std::pair<int, bool>	current_match;
 		const Properties& server_properties = it->first->getProperties();
 
-		//std::cout << "Server listen - " << server_properties.ip_port.first << ":" << server_properties.ip_port.second << std::endl;
-
 		//if server_name matches explicitly
 		if ((std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.getHost()) != server_properties.server_names.end()) || 
 			(std::find(server_properties.server_names.begin(), server_properties.server_names.end(), this->req.uri.getHost()) != server_properties.server_names.end()))
 			matching_server_name = it->first;
 
-		//std::cout << "Server with matching_server_name: " << (void*)matching_server_name << std::endl;
-
 		if (this->req.uri.getPort() == server_properties.ip_port.second || host_uri.getPort() == server_properties.ip_port.second)
 			current_match.second = true;
 		else
-		{
-			//std::cout << "Port doesn't match" << std::endl;
 			continue ; //port has to match explicitly
-		}
 
 		if (this->req.uri.getHost() == server_properties.ip_port.first || host_uri.getHost() == server_properties.ip_port.first)
 			current_match.first = 2;
 		else if (server_properties.ip_port.first == "0.0.0.0") //"any ip" matches, but is less explicit
 			current_match.first = 1;
 		else
-		{
-			//std::cout << "IP doesn't match" << std::endl;
-			continue ;
-		}
+			continue ; //IP doesnt match
 
 		//if server_name matches explicitly
 		if (std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.getHost()) != server_properties.server_names.end())
@@ -774,10 +729,7 @@ Server*	Response::serverMatch(const std::map<Server*, std::vector<std::string> >
 
 	//choose
 	if (best_match.empty() && !matching_server_name)
-	{
-//		std::cout << "NO SERVERS MATCHING REQUEST!!" << std::endl;
 		return (NULL);
-	}
 	if (best_match.size() == 1 || (best_match.size() > 1 && matching_server_name == NULL))
 		return (best_match[0]);
 	else
@@ -789,17 +741,9 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 	Server* server_block = this->serverMatch(server_names);
 
 	if (!server_block)
-	{
-		//std::cout << "No server-block found for request!" << std::endl;
 		return ;
-	}
-	else
-	{
-		//std::cout << "SERVER_BLOCK selected:" << std::endl;
-		// ft::printIteration(server_block->getProperties().server_names.begin(), server_block->getProperties().server_names.end(), "\n");
-		if (this->server_name == "")
-			this->server_name = server_block->getProperties().server_names.front();
-	}
+	else if (this->server_name == "")
+		this->server_name = server_block->getProperties().server_names.front();
 
 	std::string uri_target = "/" + this->req.uri.getPath();
 	std::string location_path = "tmp";
@@ -832,7 +776,6 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 		if (this->location_block && location_path != "")
 			break;
 		std::string location = it->first;
-//		std::cout << "CURRENT LOCATION_BLOCK: " << location << std::endl;
 		if (uri_target.size() && uri_target[uri_target.size() - 1] != '/')
 			uri_target += "/";
 		if (uri_target.size() >= location.size() && uri_target.substr(0, location.size()) == location)
@@ -846,12 +789,7 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 		}
 	}
 	if (!this->location_block)
-	{
-		//std::cout << "No matching location block!" << std::endl;
 		return ;
-	}
-//	else
-//		std::cout << "Location block matching is: " << location_path << std::endl;
 }
 
 void	Response::setLocation(void)
@@ -859,7 +797,6 @@ void	Response::setLocation(void)
 	if (this->response_code != 301 && this->response_code != 201)
 		return;
 
-//	std::cout << "Pre" << this->req.getPath() << "Post" << std::endl;
 	std::string location = "http://" + this->req.getHeader("Host") + this->req.getPath();
 	if (this->response_code == 301)
 	{

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:32:28 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:41:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class Request : public Message
 		bool 			isStatusLine(const std::string& line);
 		bool			parseLine(std::string line);
 		void			splitRequest(void);
-		void			printRequest(void) const;
 		void			process(int fd);
 
 		bool			getDone(void) const;
@@ -40,7 +39,8 @@ class Request : public Message
 		URI							uri;
 
 	private:
-		bool		isMethod(std::string str);
+		//move this to Method
+		bool						isMethod(std::string str);
 		bool						done;
 		std::string 				status_line;
 		std::vector<std::string>	lines;

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 17:22:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:58:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:41:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ class URI
 		URI& operator = (const URI& other);
 		~URI();
 	private:
-		void	printState();
 		URI();
 		std::string					str;
 		std::vector<std::string>	parts;

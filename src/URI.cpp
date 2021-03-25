@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 17:37:34 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:43:36 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:42:05 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,21 +28,6 @@ URI& URI::operator = (const URI& other)
 		this->parts = other.parts;
 	}
 	return (*this);
-}
-
-void	URI::printState()
-{
-	const char *partnames[] = {
-		"SCHEME",
-		"HOST",
-		"PORT",
-		"PATH",
-		"QUERY",
-		"FRAGMENT"
-	};
-
-	for (size_t i = 0; i < this->parts.size(); i++)
-		std::cout << partnames[i] << " = " << this->parts[i] << std::endl;
 }
 
 URI::URI(const std::string& uri)

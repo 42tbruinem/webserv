@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:43:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:41:23 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,11 +70,11 @@ void	Request::process(int fd)
 
 	std::vector <std::string> lines_read = ft::getLines(fd, "\r\n", &ret, this->encoding);
 
-	 if (ret == -1)
-	 {
-	 	this->status_code = 400;
-	 	this->done = true;
-	 }
+	if (ret == -1)
+	{
+		this->status_code = 400;
+		this->done = true;
+	}
 
 	for (std::vector<std::string>::iterator it = lines_read.begin(); it != lines_read.end() && !this->done; it++)
 		this->done = parseLine(*it);
@@ -302,33 +302,6 @@ void Request::splitRequest(void)
 			for (std::vector<std::string>::iterator it = header_end; it != this->lines.end(); it++)
 				this->body.push_back(*it);
 		}
-	}
-}
-
-void	Request::printRequest(void) const {
-	std::cout << std::endl << "Request:" << std::endl;
-	std::cout << "  Headers:" << std::endl;
-	std::cout << "\t" << this->method.getStr() << " " << this->path << " HTTP/1.1" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++) {
-		std::cout << "\t" << it->first << ": " << it->second << std::endl;
-	}
-	if (this->body.size()) {
-
-		int		amount_printed = 0;
-		std::cout << "  Body:" << std::endl;
-		for (std::vector<std::string>::const_iterator it = this->body.begin(); it != this->body.end() && amount_printed < 5; it++)
-		{
-			if ((*it).length() > 1000)
-			{
-				std::cout << "\t" << ft::rawString((*it).substr(0, 1000)) << "..." << std::endl;
-				amount_printed++;
-			}
-			else
-				std::cout << "\t" << *it << std::endl;
-		}
-	}
-	else {
-		std::cout << "  No body" << std::endl;
 	}
 }
 

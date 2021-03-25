@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:43:32 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:47:34 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,25 +35,6 @@ Server::Server(Context& parent) : Context(parent)
 	this->keywords.push_back("cgi_param");
 	this->keywords.push_back("auth_basic");
 	this->keywords.push_back("auth_basic_user_file");
-}
-
-Server::Server(const Server &src)
-{
-	*this = src;
-}
-
-//Operators
-
-//pleasefix
-Server&		Server::operator=(const Server &rhs)
-{
-	if (this != &rhs)
-	{
-		this->server_fd = rhs.server_fd;
-		this->address = rhs.address;
-		this->keywords = rhs.keywords;
-	}
-	return *this;
 }
 
 //Destructor
