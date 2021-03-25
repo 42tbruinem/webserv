@@ -6,7 +6,7 @@
 #    By: novan-ve <marvin@codam.nl>                   +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/02/01 20:11:54 by novan-ve      #+#    #+#                  #
-#    Updated: 2021/03/22 17:32:54 by tbruinem      ########   odam.nl          #
+#    Updated: 2021/03/25 17:52:37 by tbruinem      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ HEADER =	Server.hpp \
 			Utilities.hpp \
 			WebServer.hpp
 
-HEADER :=	$(addprefix ./src/includes/, $(HEADER))
+HEADER :=	$(addprefix ./incl/, $(HEADER))
 
 INCL_FOLDERS = $(dir $(HEADER))
 INCL_FOLDERS := $(sort $(INCL_FOLDERS))
@@ -53,7 +53,7 @@ SRC =	main.cpp \
 		Cgi.cpp \
 		Request.cpp \
 		Response.cpp \
-		get_lines.cpp \
+		getLines.cpp \
 		Message.cpp
 
 OBJ := $(SRC:%.cpp=./obj/%.o)

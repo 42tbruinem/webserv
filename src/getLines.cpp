@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   get_lines.cpp                                      :+:    :+:            */
+/*   getLines.cpp                                       :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2021/02/02 13:00:05 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/17 14:43:42 by novan-ve      ########   odam.nl         */
+/*   Created: 2021/03/25 17:45:58 by tbruinem      #+#    #+#                 */
+/*   Updated: 2021/03/25 17:46:34 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 
 namespace ft
 {
-	std::vector<std::string>	get_lines(int fd, std::string eol_sequence, int* ret, bool encoding, bool file, size_t max_lines)
+	std::vector<std::string>	getLines(int fd, std::string eol_sequence, int* ret, bool encoding, bool file, size_t max_lines)
 	{
 		static std::map<int,std::string>	buffers;
 		std::vector<std::string>			lines;
@@ -39,9 +39,9 @@ namespace ft
 
 		for (size_t i = 0; i < max_lines && bytes_read; i++)
 		{
-			while ((end_pos = buffers[fd].find(eol_sequence)) == std::string::npos) //while there is no newline in buffer
+			while ((end_pos = buffers[fd].find(eol_sequence)) == std::string::npos)
 			{
-				bytes_read = read(fd, buf, BUFFER_SIZE); //read again
+				bytes_read = read(fd, buf, BUFFER_SIZE);
 				if (bytes_read == -1)
 				{
 					if (eol_sequence.size() > 1 && buffers[fd].size() && buffers[fd][0] != eol_sequence[0] && !encoding &&
@@ -59,7 +59,7 @@ namespace ft
 				if (large)
 					largeBuffer.append(std::string(buf));
 				else
-					buffers[fd].append(std::string(buf)); //replace buffer with newly read data
+					buffers[fd].append(std::string(buf));
 				if (!bytes_read)
 				{
 					if (ret && !lines.size())
@@ -86,7 +86,7 @@ namespace ft
 				return lines;
 			}
 			end_pos = buffers[fd].find(eol_sequence);
-			if (end_pos != std::string::npos) //if there is a newline, we add the last part of the line
+			if (end_pos != std::string::npos)
 			{
 				std::string new_line;
 				if (end_pos == buffers[fd].size())
@@ -99,7 +99,7 @@ namespace ft
 					lines.push_back(new_line);
 				else
 					lines[i].append(new_line);
-				buffers[fd] = buffers[fd].substr(end_pos + eol_sequence.size(), buffers[fd].size()); //remove the last part of the line from buff
+				buffers[fd] = buffers[fd].substr(end_pos + eol_sequence.size(), buffers[fd].size());
 			}
 			else if (file && buffers[fd][buffers[fd].length()] != '\r' && buffers[fd][buffers[fd].length()] != '\n' && buffers[fd].size())
 			{
@@ -112,7 +112,7 @@ namespace ft
 				end_pos = buffers[fd].size() - 1;
 				buffers[fd].clear();
 			}
-			if (bytes_read == 0) //last line, done reading
+			if (bytes_read == 0)
 				return (lines);
 			if (bytes_read == -1)
 			{

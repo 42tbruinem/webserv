@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 09:28:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/28 16:48:56 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:33:26 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ struct Authorization
 	std::map<std::string, std::string>	user_pass;
 	bool	operator () (std::string userpass) const;
 	Authorization();
-	virtual ~Authorization();
+	~Authorization();
 	Authorization& operator = (const Authorization& other);
 	Authorization(const Authorization& other);
 };
@@ -36,7 +36,7 @@ struct Properties
 	Properties();
 	Properties(const Properties& other);
 	Properties& operator = (const Properties& other);
-	virtual ~Properties();
+	~Properties();
 
 	std::string							root;
 	std::pair<std::string, std::string>	ip_port;

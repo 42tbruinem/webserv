@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 15:24:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/11 23:57:56 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:55:28 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Client
 		int		getFd();
 		Client(Server* server);
 		Client(const Client& other);
-		virtual ~Client();
+		~Client();
 };
 
 #endif

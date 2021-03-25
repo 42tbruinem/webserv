@@ -3,9 +3,24 @@ write legible checks for status_codes
 introduce defines for status codes
 remove magic numbers:
 	max_connections
-split get_lines into something readable and comprehensible
+	'8' in Request::parseLine()
+	'80' in Request::parseLine() <- DEFAULT_HTTP_PORT
+split big functions:
+	get_lines
+	webserver::run
 
-
-make sure every socket only gets read from once with every select call
+make sure every socket only gets read from once with every select call!!
 
 get rid of "42 coplien" unused useless functions
+
+bundle resources in the most appropriate container
+(Clients in Server, Request&Response in Client)
+
+URI might be a little overkill, could remove it possibly (?)
+
+MAYBE:
+create a class for StatusCode
+- checks for specific tiers of status codes (2xx, 4xx, etc)
+- tier() to return an enum referring to the tier of the status code
+
+make Makefile rules dependant on HPP files being up to date as well

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:32:14 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/16 16:15:13 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:54:49 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,12 @@ class	Method : public EnumString<e_method>
 		Method(e_method id);
 		Method(std::string str);
 		Method(const Method& other);
-		virtual ~Method();
-		Method& operator = (const Method& other); //everything is const
+		~Method();
+		Method& operator = (const Method& other);
 
 	private:
 		Method();
-		static const char * const names[]; //needed for EnumString, declared in cpp
+		static const char * const names[];
 };
 
 #endif

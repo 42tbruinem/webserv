@@ -6,14 +6,13 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 01:22:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:50:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 #include "Context.hpp"
 
-//Location is a child Context of Server
 Location::Location(Context& parent, const std::string& location) : Context(parent), location(location)
 {
 	this->keywords.push_back("limit_except");
@@ -27,10 +26,7 @@ Location::Location(Context& parent, const std::string& location) : Context(paren
 	this->keywords.push_back("auth_basic_user_file");
 	this->keywords.push_back("client_max_body_size");
 	this->keywords.push_back("ext");
-	//std::cout << "LOCATION CREATED!" << std::endl;
 }
-
-Location::Location() {}
 
 Location::~Location() {}
 
@@ -39,18 +35,17 @@ std::string	Location::get_location() const
 	return (this->location);
 }
 
- Location& Location::operator = (const Location& other)
- 
+Location& Location::operator = (const Location& other)
 {
- 	if (this != &other)
- 	{
- 		this->keywords = other.keywords;
- 		this->parent = other.parent;
- 		this->children = other.children;
- 		this->properties = other.properties;
- 	}
- 	return (*this);
- }
+	if (this != &other)
+	{
+		this->keywords = other.keywords;
+		this->parent = other.parent;
+		this->children = other.children;
+		this->properties = other.properties;
+	}
+	return (*this);
+}
 
 Location::Location(const Location& other)
 {

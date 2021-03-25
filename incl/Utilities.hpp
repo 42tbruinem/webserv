@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/03 10:09:43 by tishj         ########   odam.nl         */
+/*   Updated: 2021/03/25 17:43:15 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,15 +36,16 @@ namespace ft
 	size_t stoul(std::string number, const std::string base = "0123456789");
 
 	template <class T1, class T2>
-	T1	max_element(const std::map<T1,T2>& container)
+	T1	maxElement(const std::map<T1,T2>& container)
 	{
 		typename std::map<T1,T2>::const_reverse_iterator it;
 		if (!container.size() || (it = container.rbegin()) == container.rend())
 			return (T1());
 		return (it->first);
 	}
+
 	template <class T1>
-	T1	max_element(const std::vector<T1>& container)
+	T1	maxElement(const std::vector<T1>& container)
 	{
 		typename std::vector<T1>::const_reverse_iterator it;
 		if (!container.size() || (it = container.rbegin()) == container.rend())
@@ -59,7 +60,7 @@ namespace ft
 	}
 
 	template <class Iter>
-	void	print_iteration(Iter first, Iter last, std::string delim = ",")
+	void	printIteration(Iter first, Iter last, std::string delim = ",")
 	{
 		size_t distance = std::distance(first, last);
 		for (; first != last;)
@@ -68,13 +69,13 @@ namespace ft
 			std::cout << std::endl;
 	}
 
-	void	put_error(const std::string &str);
+	void	putError(const std::string &str);
 
 	void	*memset(void *b, int c, size_t len);
 
-	unsigned short	host_to_network_short(unsigned short x);
+	unsigned short	hostToNetworkShort(unsigned short x);
 
-	char    *strdup(const char *s1);
+	char			*strdup(const char *s1);
 
 	std::string toUpperStr(const std::string& str);
 
@@ -82,15 +83,15 @@ namespace ft
 
 	struct tm					getTime(time_t sec = 0);
 
-	std::vector<std::string>	get_lines(int fd, std::string eol_sequence = "\n", int *ret = NULL, bool encoding = false, bool file = false, size_t max_lines = std::numeric_limits<size_t>::max());
-	std::pair<std::string, std::string>	get_keyval(std::string raw, std::string delimiter = ": ");
+	std::vector<std::string>	getLines(int fd, std::string eol_sequence = "\n", int *ret = NULL, bool encoding = false, bool file = false, size_t max_lines = std::numeric_limits<size_t>::max());
+	std::pair<std::string, std::string>	getKeyval(std::string raw, std::string delimiter = ": ");
 
-	size_t	first_of_group(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match);
+	size_t	firstOfGroup(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match);
 	std::vector<std::string>	split(std::string raw, std::vector<std::string>& delim);
 
 	std::vector<std::string>	split(std::string raw, std::string delim, std::string preserve_delim = "");
 
-	struct size_compare
+	struct SizeCompare
 	{
 		bool	operator() (const std::string& a, const std::string& b) const;
 	};
@@ -101,7 +102,7 @@ namespace ft
 
 	bool	onlyConsistsOf(const std::string& str, std::string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-	std::string	base64decode(std::string input, std::string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+	std::string	base64Decode(std::string input, std::string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
 
 	std::string removeSet(std::string str, std::string remove);
 }

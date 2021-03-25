@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/28 16:40:48 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:32:28 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,20 +23,20 @@ class Request : public Message
 		Request();
 		Request(const Request& other);
 		Request& operator = (const Request& other);
-		virtual ~Request();
+		~Request();
 
-		bool 		isStatusLine(const std::string& line);
-		bool		parseLine(std::string line);
-		void		splitRequest(void);
-		void		printRequest(void) const;
-		void		process(int fd);
+		bool 			isStatusLine(const std::string& line);
+		bool			parseLine(std::string line);
+		void			splitRequest(void);
+		void			printRequest(void) const;
+		void			process(int fd);
 
-		bool		get_done(void) const;
-		std::string	get_method(void) const;
-		std::string	get_path(void) const;
-		int			get_status_code(void) const;
-		std::map<std::string, std::string>& get_headers(void);
-		std::vector<std::string>&	get_body(void);
+		bool			getDone(void) const;
+		std::string		getMethod(void) const;
+		std::string		getPath(void) const;
+		int				getStatusCode(void) const;
+		std::map<std::string, std::string>& getHeaders(void);
+		std::vector<std::string>&	getBody(void);
 		URI							uri;
 
 	private:

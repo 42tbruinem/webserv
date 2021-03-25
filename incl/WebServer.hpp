@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/15 17:43:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:22:09 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,15 @@
 
 # define DEFAULT_CONFIG "./config/default.conf"
 
+// enum ResponseCode
+// {
+// 	200 = OK,
+// 	400 = ERROR,
+
+// };
+
+//Heart of the program, contains the main loop that handles all the requests/responses
+
 class WebServer : public Context
 {
 	private:
@@ -39,27 +48,26 @@ class WebServer : public Context
 
 		WebServer();
 		std::map<int, Server*>							servers;
-		std::map<int, Client*>							clients; //has to be pointer so the destructor only gets called once, when it's deleted
+		std::map<int, Client*>							clients;
 
 		std::map<int, std::queue<Request> >				requests;
 		std::map<int, std::queue<Response> >			responses;
 
-		fd_set											read_sockets; //contain all sockets that need to be read from
-		fd_set											write_sockets; //contains all sockets that need to be written to
+		fd_set											read_sockets;
+		fd_set											write_sockets;
 		std::map<Server*, std::vector<std::string> >	server_names;
 
 		void	deleteClient(int fd);
 		void	addNewClients(fd_set& read_set);
+		void	readRequests();
+		void	writeResponses();
 		static void	closeSignal(int status);
-
-		//to be able to have one fd_set containing all connections, clients are collected in the all-encompassing class
 	public:
-
 		WebServer(char *config_path);
 		WebServer(const WebServer& other);
 		void	run();
 		WebServer& operator = (const WebServer& other);
-		virtual ~WebServer();
+		~WebServer();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:19:13 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:43:32 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
 #include "Location.hpp"
 #include "Context.hpp"
 
-//Context - WebServer, Server is a child Context of WebServer
+//Constructors
+
 Server::Server(Context& parent) : Context(parent)
 {
 	this->keywords.push_back("location");
@@ -36,6 +37,34 @@ Server::Server(Context& parent) : Context(parent)
 	this->keywords.push_back("auth_basic_user_file");
 }
 
+Server::Server(const Server &src)
+{
+	*this = src;
+}
+
+//Operators
+
+//pleasefix
+Server&		Server::operator=(const Server &rhs)
+{
+	if (this != &rhs)
+	{
+		this->server_fd = rhs.server_fd;
+		this->address = rhs.address;
+		this->keywords = rhs.keywords;
+	}
+	return *this;
+}
+
+//Destructor
+
+Server::~Server()
+{
+	close(this->server_fd);
+}
+
+//Utils
+
 bool	Server::init()
 {
 	int 	opt = 1;
@@ -44,7 +73,7 @@ bool	Server::init()
 	if ((this->server_fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
 		throw std::runtime_error("Error: Creation of socket failed");
 
-	// Forcefully attach socket to port
+	// Set additional options for the socket and the socket type
 	if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
 		throw std::runtime_error("Error: Failed to set socket options");
 
@@ -53,7 +82,7 @@ bool	Server::init()
 	if (this->properties.ip_port.first == "localhost")
 		this->properties.ip_port.first = "127.0.0.1";
 	this->address.sin_addr.s_addr = (this->properties.ip_port.first == "0.0.0.0") ? INADDR_ANY : inet_addr(this->properties.ip_port.first.c_str());
-	this->address.sin_port = ft::host_to_network_short(ft::stoi(this->properties.ip_port.second));
+	this->address.sin_port = ft::hostToNetworkShort(ft::stoi(this->properties.ip_port.second));
 	ft::memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
 
 	// Attach socket to transport address
@@ -69,37 +98,4 @@ bool	Server::init()
 		throw std::runtime_error("Error: Could not set server-socket to O_NONBLOCK");
 
 	return true;
-}
-
-Server::Server(const Server &src)
-{
-	*this = src;
-}
-
-Server&		Server::operator=(const Server &rhs)
-{
-	if (this != &rhs)
-	{
-		this->server_fd = rhs.server_fd;
-		this->address = rhs.address;
-		this->keywords = rhs.keywords;
-	}
-	return *this;
-}
-
-Server::Server() {}
-
-Server::~Server()
-{
-	//std::cout << "DECONSTRUCTING SERVER" << std::endl;
-	close(this->server_fd);
-}
-
-void	Server::handle_args(std::list<std::string>	args)
-{
-	//std::cout << "Server ARGS: ";
-	//ft::print_iteration(args.begin(), args.end());
-	if (args.size())
-		throw std::runtime_error("Error: Configuration error encountered in 'server'");
-	return ;
 }

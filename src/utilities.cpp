@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:32:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:43:37 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 namespace ft
 {
-	bool	size_compare::operator () (const std::string& a, const std::string& b) const
+	bool	SizeCompare::operator () (const std::string& a, const std::string& b) const
 	{
 		if (a.size() != b.size())
 			return (a.size() > b.size());
@@ -44,7 +44,7 @@ namespace ft
 		return (number);
 	}
 
-	std::string	base64decode(std::string input, std::string charset)
+	std::string	base64Decode(std::string input, std::string charset)
 	{
 		size_t bits = input.size() * 6;
 		bits -= (((input.size() >= 1 && input[input.size() - 1] == '=') + (input.size() >= 2 && input[input.size() - 2] == '=')) * 8);
@@ -94,7 +94,7 @@ namespace ft
 		return (res);
 	}
 
-	size_t	first_of_group(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match)
+	size_t	firstOfGroup(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match)
 	{
 		size_t smallest = std::string::npos;
 
@@ -118,7 +118,7 @@ namespace ft
 		for (size_t begin = 0 ; begin < raw.size();)
 		{
 			match = -1;
-			end = first_of_group(raw, delim, begin, match);
+			end = firstOfGroup(raw, delim, begin, match);
 			if (end == std::string::npos)
 				end = raw.size();
 			if (begin != end)
@@ -149,7 +149,7 @@ namespace ft
 		return (tokens);
 	}
 
-	void	put_error(const std::string &str) {
+	void	putError(const std::string &str) {
 
 		std::cout << "Webserv: " << str << std::endl;
 		exit(EXIT_FAILURE);
@@ -169,12 +169,12 @@ namespace ft
 		return (b);
 	}
 
-	unsigned short	host_to_network_short(unsigned short x)
+	unsigned short	hostToNetworkShort(unsigned short x)
 	{
 		return ((((x) >> 8) & 0xff ) | (((x) & 0xff) << 8));
 	}
 
-	char    *strdup(const char *s1)
+	char	*strdup(const char *s1)
 	{
 		char	*p;
 		int		len = 0;
@@ -264,12 +264,12 @@ namespace ft
 		return tmp;
 	}
 
-	std::pair<std::string, std::string>	get_keyval(std::string raw, std::string delimiter)
+	std::pair<std::string, std::string>	getKeyval(std::string raw, std::string delimiter)
 	{
 		std::pair<std::string, std::string>	keyval;
 		size_t	delim_pos = raw.find(delimiter);
 		if (delim_pos == std::string::npos)
-			throw std::runtime_error("Error: delimiter string not found in 'get_keyval'");
+			throw std::runtime_error("Error: delimiter string not found in 'getKeyval'");
 		keyval.first = raw.substr(0, delim_pos);
 		keyval.second = raw.substr(delim_pos + delimiter.size(), raw.size());
 		return (keyval);

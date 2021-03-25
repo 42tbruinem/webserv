@@ -6,16 +6,13 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 17:37:34 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/16 02:17:31 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:43:36 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "URI.hpp"
 #include "Utilities.hpp"
 #include <iostream>
-
-#define yeet throw
-#define kitkat break
 
 URI::~URI() {}
 
@@ -33,7 +30,7 @@ URI& URI::operator = (const URI& other)
 	return (*this);
 }
 
-void	URI::print_state()
+void	URI::printState()
 {
 	const char *partnames[] = {
 		"SCHEME",
@@ -50,8 +47,7 @@ void	URI::print_state()
 
 URI::URI(const std::string& uri)
 {
-	set_uri(uri);
-	//print_state();
+	setUri(uri);
 }
 
 URI::PartModifier::PartModifier(URI& uri, std::string &str, e_uri id) : uri(uri), id(id), str(str) {}
@@ -60,9 +56,9 @@ void	URI::PartModifier::operator () (std::string updated)
 {
 	this->str = updated;
 	if (this->id == URI_FULL)
-		this->uri.set_uri(updated);
+		this->uri.setUri(updated);
 	else
-		this->uri.set_parts(this->uri.parts);
+		this->uri.setParts(this->uri.parts);
 }
 
 const std::string& URI::operator [] (e_uri id)
@@ -90,85 +86,85 @@ URI::PartModifier URI::operator [] (std::string part)
 
 //----------------------------------------------------
 
-const std::string&	URI::get_uri()
+const std::string&	URI::getUri()
 {
 	return (this->str);
 }
 
-const std::string&	URI::get_scheme()
+const std::string&	URI::getScheme()
 {
 	return (this->parts[URI_SCHEME]);
 }
 
-const std::string&	URI::get_host()
+const std::string&	URI::getHost()
 {
 	return (this->parts[URI_HOST]);
 }
 
-const std::string&	URI::get_port()
+const std::string&	URI::getPort()
 {
 	return (this->parts[URI_PORT]);
 }
 
-const std::string&	URI::get_path()
+const std::string&	URI::getPath()
 {
 	return (this->parts[URI_PATH]);
 }
 
-const std::string&	URI::get_query()
+const std::string&	URI::getQuery()
 {
 	return (this->parts[URI_QUERY]);
 }
 
-const std::string&	URI::get_fragment()
+const std::string&	URI::getFragment()
 {
 	return (this->parts[URI_FRAGMENT_ID]);
 }
 
-std::vector<std::string>	URI::get_parts()
+std::vector<std::string>	URI::getParts()
 {
 	return (this->parts);
 }
 
 //----------------------------------------------------
 
-void	URI::set_scheme(std::string updated)
+void	URI::setScheme(std::string updated)
 {
 	this->parts[URI_SCHEME] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_host(std::string updated)
+void	URI::setHost(std::string updated)
 {
 	this->parts[URI_HOST] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_port(std::string updated)
+void	URI::setPort(std::string updated)
 {
 	this->parts[URI_PORT] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_path(std::string updated)
+void	URI::setPath(std::string updated)
 {
 	this->parts[URI_PATH] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_query(std::string updated)
+void	URI::setQuery(std::string updated)
 {
 	this->parts[URI_QUERY] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_fragment(std::string updated)
+void	URI::setFragment(std::string updated)
 {
 	this->parts[URI_FRAGMENT_ID] = updated;
-	this->set_parts(this->parts);
+	this->setParts(this->parts);
 }
 
-void	URI::set_parts(const std::vector<std::string>& updated)
+void	URI::setParts(const std::vector<std::string>& updated)
 {
 	if (parts.size() != 6)
 		return ;
@@ -193,7 +189,7 @@ void	URI::set_parts(const std::vector<std::string>& updated)
 	}
 }
 
-void	URI::set_uri(std::string uri)
+void	URI::setUri(std::string uri)
 {
 	std::vector<std::vector<std::string> >	separators(6);
 
@@ -215,7 +211,7 @@ void	URI::set_uri(std::string uri)
 	{
 		nextpart = -1;
 		int match = -1;
-		end = ft::first_of_group(uri, separators[part], start, match);
+		end = ft::firstOfGroup(uri, separators[part], start, match);
 		if (match != -1)
 			begun = true;
 		if (match == -1 && !begun)
@@ -225,11 +221,10 @@ void	URI::set_uri(std::string uri)
 			nextpart = part + 1;
 			for (; nextpart < (ssize_t)separators.size(); nextpart++)
 			{
-				end = ft::first_of_group(uri, separators[nextpart], start, match);
+				end = ft::firstOfGroup(uri, separators[nextpart], start, match);
 				if (match != -1)
 					break ;
 			}
-			//no separator was found
 			if (nextpart == (ssize_t)separators.size())
 				break ;
 		}
@@ -244,5 +239,4 @@ void	URI::set_uri(std::string uri)
 	}
 	if (part < separators.size())
 		this->parts[part] = uri.substr(start, uri.size());
-//	this->print_state();
 }

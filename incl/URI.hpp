@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 17:22:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/08 11:57:36 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:30:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,30 +45,30 @@ class URI
 		const std::string& operator [] (e_uri id); //get reference
 		PartModifier operator [] (std::string part); //change the URI
 
-		const std::string&			get_uri();
-		const std::string&			get_scheme();
-		const std::string&			get_host();
-		const std::string&			get_port();
-		const std::string&			get_path();
-		const std::string&			get_query();
-		const std::string&			get_fragment();
-		std::vector<std::string>	get_parts();
+		const std::string&			getUri();
+		const std::string&			getScheme();
+		const std::string&			getHost();
+		const std::string&			getPort();
+		const std::string&			getPath();
+		const std::string&			getQuery();
+		const std::string&			getFragment();
+		std::vector<std::string>	getParts();
 
-		void						set_uri(std::string updated);
-		void						set_scheme(std::string updated);
-		void						set_host(std::string updated);
-		void						set_port(std::string updated);
-		void						set_path(std::string updated);
-		void						set_query(std::string updated);
-		void						set_fragment(std::string updated);
-		void						set_parts(const std::vector<std::string>& updated);
+		void						setUri(std::string updated);
+		void						setScheme(std::string updated);
+		void						setHost(std::string updated);
+		void						setPort(std::string updated);
+		void						setPath(std::string updated);
+		void						setQuery(std::string updated);
+		void						setFragment(std::string updated);
+		void						setParts(const std::vector<std::string>& updated);
 
 		URI(const std::string& uri);
 		URI(const URI& other);
 		URI& operator = (const URI& other);
-		virtual ~URI();
+		~URI();
 	private:
-		void	print_state();
+		void	printState();
 		URI();
 		std::string					str;
 		std::vector<std::string>	parts;

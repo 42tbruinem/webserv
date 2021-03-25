@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:00:37 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/07 16:50:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:21:33 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,15 @@
 
 class WebServer;
 
-//Handles all the configuration parsing with member functions and makes all the needed variables available through variables or methods
+//Creates Server and Location contexts containing their properties
+//based on the configuration file provided.
 class Configuration
 {
 	public:
 		Configuration(char *config, WebServer* webserv);
 		Configuration(const Configuration & src);
 		Configuration&	operator=(const Configuration & rhs);
-		virtual ~Configuration();
+		~Configuration();
 		void	parse();
 	private:
 		int		fd;

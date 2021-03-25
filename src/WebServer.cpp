@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:18:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:53:01 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,18 +41,18 @@ WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 	std::map<std::string, const Properties*>	ports;
 	for (size_t i = 0 ; i < this->children.size(); i++)
 	{
-		if (ports.count(this->children[i]->get_properties().ip_port.second))
+		if (ports.count(this->children[i]->getProperties().ip_port.second))
 		{
-			for (std::vector<std::string>::const_iterator it = this->children[i]->get_properties().server_names.begin();
-				 it != this->children[i]->get_properties().server_names.end(); it++)
+			for (std::vector<std::string>::const_iterator it = this->children[i]->getProperties().server_names.begin();
+				 it != this->children[i]->getProperties().server_names.end(); it++)
 			{
-				std::vector<std::string> tmp = ports[this->children[i]->get_properties().ip_port.second]->server_names;
+				std::vector<std::string> tmp = ports[this->children[i]->getProperties().ip_port.second]->server_names;
 				if (std::find(tmp.begin(), tmp.end(), *it) != tmp.end())
 					throw std::runtime_error("Error: detected multiple servers with the same port");
 			}
 		}
-		if (!this->children[i]->get_properties().ip_port.second.empty())
-			ports[this->children[i]->get_properties().ip_port.second] = &this->children[i]->get_properties();
+		if (!this->children[i]->getProperties().ip_port.second.empty())
+			ports[this->children[i]->getProperties().ip_port.second] = &this->children[i]->getProperties();
 	}
 
 	for (size_t i = 0 ; i < this->children.size(); i++)
@@ -144,12 +144,23 @@ void	WebServer::closeSignal(int status)
 	exit(status);
 }
 
+void	WebServer::readRequests()
+{
+
+	
+}
+
+void	WebServer::writeResponses()
+{
+
+	
+}
+
 void	WebServer::run()
 {
 	std::vector<int>	closed_clients;
 	fd_set				read_set;
 	fd_set				write_set;
-	bool				finished = true;
 
 	this_copy = this;
 	signal(SIGINT, WebServer::closeSignal);
@@ -158,7 +169,7 @@ void	WebServer::run()
 	while (1)
 	{
 		closed_clients.clear();
-		size_t		max_fd = ft::max(ft::max_element(this->servers), ft::max_element(this->clients)) + 1;
+		size_t		max_fd = ft::max(ft::maxElement(this->servers), ft::maxElement(this->clients)) + 1;
 		read_set = this->read_sockets;
 		write_set = this->write_sockets;
 		if (select(max_fd, &read_set, &write_set, NULL, NULL) == -1)
@@ -171,11 +182,11 @@ void	WebServer::run()
 			{
 				Response& current_response = responses[fd].front();
 				current_response.sendResponse(fd);
-				if ((finished = current_response.getFinished()))
+				if (current_response.getFinished())
 				{
-					if (current_response.get_status_code() != 400)
-						std::cout << "[" << current_response.get_status_code() << "] Response send!" << std::endl;
-					if (current_response.get_status_code() == 400 || current_response.get_status_code() == 505)
+					if (current_response.getStatusCode() != 400)
+						std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+					if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
 						closed_clients.push_back(fd);
 					responses[fd].pop();
 					if (responses[fd].empty())
@@ -189,7 +200,7 @@ void	WebServer::run()
 			}
 			it++;
 		}
-		for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end() && finished;)
+		for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end();)
 		{
 			int fd = it->first;
 			if (FD_ISSET(fd, &read_set))
@@ -198,11 +209,11 @@ void	WebServer::run()
 					requests[fd].push(Request());
 				Request &current_request = requests[fd].front();
 				current_request.process(fd);
-				if (current_request.get_done()) {
+				if (current_request.getDone()) {
 					responses[fd].push(Response());
 					Response &current_response = responses[fd].back();
 					current_response.setRequest(requests[fd].front());
-					current_response.location_match(this->server_names);
+					current_response.locationMatch(this->server_names);
 					current_response.composeResponse();
 					requests[fd].pop();
 					if (requests[fd].empty())

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:08:13 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/02/16 14:55:42 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:34:09 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ class Message
 		Message(const Message& other);
 		Message& operator = (const Message& other);
 		virtual ~Message();
-		std::string get_header(const std::string& key);
+
+		std::string getHeader(const std::string& key);
 		std::string getBodyLen();
 	protected:
 		std::map<std::string, std::string>					headers;

@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:18:15 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:52:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,10 @@ Response::Response(const Response& other)
 void	Response::setRequest(Request& req)
 {
 	this->req = req;
-	this->response_code = req.get_status_code();
+	this->response_code = req.getStatusCode();
 }
 
-int		Response::get_status_code() const
+int		Response::getStatusCode() const
 {
 	return (this->response_code);
 }
@@ -96,24 +96,20 @@ void	Response::setSigpipe(int)
 	g_sigpipe = true;
 }
 
-Response*	responseCopy;
+Response*	response_copy;
 void	Response::sendResponse(int fd)
 {
 	if (!this->size)
 	{
-		responseCopy = this;
+		response_copy = this;
 		g_sigpipe = false;
-		// Copy status line into response
 		this->response.append(this->status_line + "\r\n");
 
-		// Copy headers into response
 		for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++)
 			this->response.append(it->first + ": " + it->second + "\r\n");
 
-		// Copy newline into response to seperate headers and body
 		response.append("\r\n");
-		// Copy body into response
-		if (this->req.get_method() != "HEAD")
+		if (this->req.getMethod() != "HEAD")
 		{
 			for (std::vector<std::string>::const_iterator it = this->body.begin(); it != this->body.end(); it++)
 					this->response.append(*it + "\r\n");
@@ -122,7 +118,6 @@ void	Response::sendResponse(int fd)
 		}
 		this->size = response.length();
 	}
-	//response.append("\r\n");
 
 	ssize_t	ret;
 
@@ -134,7 +129,7 @@ void	Response::sendResponse(int fd)
 		throw std::runtime_error("Error: Could not send request to the client");
 	if (g_sigpipe)
 	{
-		responseCopy->response_code = 400;
+		response_copy->response_code = 400;
 		g_sigpipe = 0;
 		return;
 	}
@@ -146,7 +141,6 @@ void	Response::sendResponse(int fd)
 
 void	Response::printResponse(void) const
 {
-	// Print values for debugging
 	std::cout << std::endl << "Response:" << std::endl;
 	std::cout << "  Headers:" << std::endl;
 	std::cout << "\t" << this->status_line << "\r" << std::endl;
@@ -154,7 +148,7 @@ void	Response::printResponse(void) const
 		std::cout << "\t" << it->first << ": " << it->second << "\r" << std::endl;
 	}
 
-	if (this->req.get_method() != "HEAD")
+	if (this->req.getMethod() != "HEAD")
 	{
 		int	amount_printed = 0;
 		std::cout << "  Body:" << std::endl;
@@ -174,20 +168,16 @@ void	Response::printResponse(void) const
 
 void	Response::composeResponse(void)
 {
-
-//	this->checkRequestBody();
 	if (!this->checkAuthorization())
 	{
 		this->response_code = 401;
 		this->headers["WWW-Authenticate"] = "Basic realm=\"";
 		if (this->location_block)
-			this->headers["WWW-Authenticate"] += this->location_block->get_properties().auth.realm + "\"";
+			this->headers["WWW-Authenticate"] += this->location_block->getProperties().auth.realm + "\"";
 	}
 	this->checkMethod();
 	this->checkPath();
-
 	this->handlePut();
-
 	this->setStatusLine();
 	this->setServer();
 	this->setDate();
@@ -201,19 +191,17 @@ void	Response::composeResponse(void)
 
 bool	Response::checkAuthorization(void)
 {
-	if (this->location_block && this->location_block->get_properties().auth.enabled)
+	if (this->location_block && this->location_block->getProperties().auth.enabled)
 	{
-		std::map<std::string, std::string>& headers = this->req.get_headers();
-		if (!this->location_block->get_properties().auth.user_pass.size())
+		std::map<std::string, std::string>& headers = this->req.getHeaders();
+		if (!this->location_block->getProperties().auth.user_pass.size())
 			return (true);
-		if (!this->req.get_headers().count("Authorization"))
+		if (!this->req.getHeaders().count("Authorization"))
 			return (false);
 		std::vector<std::string>	value = ft::split(headers["Authorization"], " ");
-		for (size_t i = 0; i < value.size(); i++)
-			//std::cout << "value[" << i << "] = " << value[i] << std::endl;
 		if (value.size() != 2 || value[0] != "Basic" || 
 			!ft::onlyConsistsOf(value[1], "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=") ||
-			!this->location_block->get_properties().auth(value[1]))
+			!this->location_block->getProperties().auth(value[1]))
 			return (false);
 	}
 	return (true);
@@ -226,9 +214,9 @@ void	Response::checkMethod(void)
 
 	std::map<std::string, bool>	accepted_methods;
 	if (this->location_block)
-		accepted_methods = this->location_block->get_properties().accepted_methods;
+		accepted_methods = this->location_block->getProperties().accepted_methods;
 
-	if (accepted_methods.count(this->req.get_method()) && accepted_methods[this->req.get_method()])
+	if (accepted_methods.count(this->req.getMethod()) && accepted_methods[this->req.getMethod()])
 		return ;
 	this->response_code = 405;
 }
@@ -237,7 +225,7 @@ void	Response::checkPath(void)
 {
 	if (!this->location_block)
 		return ;
-	this->path = "/" + this->req.uri.get_path();
+	this->path = "/" + this->req.uri.getPath();
 	if (this->location_block && this->path.size() >= this->location_key.size() && this->path.substr(0, this->location_key.size()) == this->location_key)
 		this->path.replace(0, this->location_key.size(), this->root);
 	else
@@ -247,23 +235,23 @@ void	Response::checkPath(void)
 		this->path.replace(0, this->location_key.size(), this->root);
 	}
 
-	if (this->req.get_headers().count("Accept-Charsets") && this->req.get_headers()["Accept-Charsets"].find("utf-8") == std::string::npos &&
-		this->req.get_headers()["Accept-Charsets"].find("*") == std::string::npos)
+	if (this->req.getHeaders().count("Accept-Charsets") && this->req.getHeaders()["Accept-Charsets"].find("utf-8") == std::string::npos &&
+		this->req.getHeaders()["Accept-Charsets"].find("*") == std::string::npos)
 		this->response_code = 400;
 
-	if (this->req.get_headers().count("User-Agent") && this->req.get_headers()["User-Agent"].find("/") == std::string::npos)
+	if (this->req.getHeaders().count("User-Agent") && this->req.getHeaders()["User-Agent"].find("/") == std::string::npos)
 		this->response_code = 400;
 
-	if (this->response_code != 200 || (this->req.get_method() == "PUT" && (this->req.get_headers().count("Content-Length") ||
-		this->req.get_headers().count("Transfer-Encoding"))))
+	if (this->response_code != 200 || (this->req.getMethod() == "PUT" && (this->req.getHeaders().count("Content-Length") ||
+		this->req.getHeaders().count("Transfer-Encoding"))))
 		return;
 
-	if (this->path == "" && this->req.get_method() == "POST" && this->location_block->get_properties().root == "")
+	if (this->path == "" && this->req.getMethod() == "POST" && this->location_block->getProperties().root == "")
 		this->path = "/";
 
 	//std::cout << "final path: " << this->path << std::endl;
 
-	if (this->location_block->get_properties().root == "" && this->req.get_method() == "POST")
+	if (this->location_block->getProperties().root == "" && this->req.getMethod() == "POST")
 		return;
 
 	int fd = open(this->path.c_str(), O_RDONLY);
@@ -280,8 +268,8 @@ void	Response::checkPath(void)
 		if ( s.st_mode & S_IFDIR )
 		{
 			std::vector<std::string>	index;
-			if (this->location_block && !this->location_block->get_properties().index.empty())
-				index = this->location_block->get_properties().index;
+			if (this->location_block && !this->location_block->getProperties().index.empty())
+				index = this->location_block->getProperties().index;
 			else
 				index.push_back("index.html");
 
@@ -303,7 +291,7 @@ void	Response::checkPath(void)
 
 			bool	autoindex = false;
 			if (this->location_block)
-				autoindex = this->location_block->get_properties().auto_index;
+				autoindex = this->location_block->getProperties().auto_index;
 
 			if (autoindex)
 			{
@@ -321,9 +309,9 @@ void	Response::checkPath(void)
 
 void	Response::handlePut(void)
 {
-	if (!(this->response_code == 404 && this->req.get_method() == "POST" && this->location_block->get_properties().php_cgi.empty()) &&
-		(this->response_code != 200 || this->req.get_method() != "PUT" ||
-		 (!this->req.get_headers().count("Content-Length") && !this->req.get_headers().count("Transfer-Encoding"))))
+	if (!(this->response_code == 404 && this->req.getMethod() == "POST" && this->location_block->getProperties().php_cgi.empty()) &&
+		(this->response_code != 200 || this->req.getMethod() != "PUT" ||
+		 (!this->req.getHeaders().count("Content-Length") && !this->req.getHeaders().count("Transfer-Encoding"))))
 		return;
 
 	// Check if requested path is a directory
@@ -344,9 +332,9 @@ void	Response::handlePut(void)
 
 	// Check if body is too large
 	size_t	bodylen = 0;
-	for (std::vector<std::string>::iterator it = req.get_body().begin(); it != req.get_body().end(); it++)
+	for (std::vector<std::string>::iterator it = req.getBody().begin(); it != req.getBody().end(); it++)
 		bodylen += (*it).size();
-	if (bodylen > this->location_block->get_properties().client_max_body_size)
+	if (bodylen > this->location_block->getProperties().client_max_body_size)
 	{
 		this->response_code = 413;
 		return;
@@ -378,7 +366,7 @@ void	Response::handlePut(void)
 		this->response_code = 403;
 		return;
 	}
-	for (std::vector<std::string>::iterator it = req.get_body().begin(); it != req.get_body().end(); it++)
+	for (std::vector<std::string>::iterator it = req.getBody().begin(); it != req.getBody().end(); it++)
 	{
 		if ((write(fd, (*it).c_str(), (*it).length())) == -1)
 		{
@@ -482,14 +470,14 @@ void	Response::setBody(void)
 
 	ret = stat(this->path.c_str(), &s);
 
-	if ((((this->req.get_path().substr(0, 9) == "/cgi-bin/" || this->req.get_method() == "POST") &&
+	if ((((this->req.getPath().substr(0, 9) == "/cgi-bin/" || this->req.getMethod() == "POST") &&
 		(s.st_mode & S_IXUSR || ret == -1)) ||
 		(this->headers["Content-Type"] == "application/x-httpd-php" &&
-		!this->location_block->get_properties().php_cgi.empty())) && this->req.get_path().find("?") == std::string::npos)
+		!this->location_block->getProperties().php_cgi.empty())) && this->req.getPath().find("?") == std::string::npos)
 	{
 		fd = 0;
 		if (this->headers["Content-Type"] == "application/x-httpd-php")
-			fd = open(this->location_block->get_properties().php_cgi.c_str(), O_RDONLY);
+			fd = open(this->location_block->getProperties().php_cgi.c_str(), O_RDONLY);
 		if (fd != -1)
 		{
 			if (fd)
@@ -499,12 +487,12 @@ void	Response::setBody(void)
 			if (this->path.size() >= 2)
 				tmp_path = this->path.substr(2, path.length() - 2);
 			c.execute(&req, tmp_path, this->server_name,
-					  this->location_block->get_properties().ip_port.second,
-					  this->location_block->get_properties().php_cgi);
+					  this->location_block->getProperties().ip_port.second,
+					  this->location_block->getProperties().php_cgi);
 			fd = open("/tmp/webservout", O_RDONLY);
 
 			// Set default cgi content type to text/html
-			if (this->req.get_path().substr(0, 9) == "/cgi-bin/")
+			if (this->req.getPath().substr(0, 9) == "/cgi-bin/")
 				this->headers["Content-Type"] = "text/html";
 		}
 		else
@@ -517,18 +505,18 @@ void	Response::setBody(void)
 	if (fd == -1)
 		throw std::runtime_error("Error: Response can't open previously checked file in setBody()");
 
-	this->body = ft::get_lines(fd, "\n", NULL, false, true);
+	this->body = ft::getLines(fd, "\n", NULL, false, true);
 
 	close(fd);
 
-	if (this->req.get_path().substr(0, 9) == "/cgi-bin/" ||
-		this->headers["Content-Type"] == "application/x-httpd-php" || this->req.get_method() == "POST")
+	if (this->req.getPath().substr(0, 9) == "/cgi-bin/" ||
+		this->headers["Content-Type"] == "application/x-httpd-php" || this->req.getMethod() == "POST")
 		this->parseCgiHeaders();
 
 	size_t body_size = 0;
 	for (size_t i = 0; i < this->body.size(); i++)
 		body_size += this->body[i].size();
-	if (this->location_block && body_size > this->location_block->get_properties().client_max_body_size)
+	if (this->location_block && body_size > this->location_block->getProperties().client_max_body_size)
 	{
 		this->response_code = 413;
 		this->body.clear();
@@ -543,12 +531,12 @@ void	Response::setBodyError(void)
 	bool		error_page_found = false;
 	std::map<int, std::string>	error_pages;
 	if (this->location_block)
-		error_pages = this->location_block->get_properties().error_pages;
+		error_pages = this->location_block->getProperties().error_pages;
 
 	if (this->response_code == 405 && this->location_block)
 	{
 		size_t i = 0;
-		const std::map<std::string, bool>&	accepted_methods = this->location_block->get_properties().accepted_methods;
+		const std::map<std::string, bool>&	accepted_methods = this->location_block->getProperties().accepted_methods;
 		for (std::map<std::string, bool>::const_iterator it = accepted_methods.begin(); it != accepted_methods.end(); it++)
 		{
 			if (it->second)
@@ -570,7 +558,7 @@ void	Response::setBodyError(void)
 		if (fd != -1)
 		{
 			error_page_found = true;
-			this->body = ft::get_lines(fd);
+			this->body = ft::getLines(fd);
 			close(fd);
 		}
 	}
@@ -594,7 +582,7 @@ void	Response::listDirectory(void)
 	std::vector<std::string>	filenames;
 	std::vector<std::string>	dirs;
 	std::vector<std::string>	files;
-	std::string					full_path = this->req.get_path();
+	std::string					full_path = this->req.getPath();
 
 	full_path.resize(full_path.find_last_not_of('/') + 1);
 
@@ -626,8 +614,8 @@ void	Response::listDirectory(void)
 
 			if ( result.st_mode & S_IFDIR )
 			{
-				dirs.push_back("<a href=\"" + this->req.get_path());
-				if (this->req.get_path()[this->req.get_path().length() - 1] != '/')
+				dirs.push_back("<a href=\"" + this->req.getPath());
+				if (this->req.getPath()[this->req.getPath().length() - 1] != '/')
 					dirs.back().append("/");
 				dirs.back().append(*it + "/\">" + *it + "/</a>");
 				dirs.back().append(std::string(50 - (*it).length(), ' ') + std::string(buf));
@@ -635,8 +623,8 @@ void	Response::listDirectory(void)
 			}
 			else if ( result.st_mode & S_IFREG )
 			{
-				files.push_back("<a href=\"" + this->req.get_path());
-				if (this->req.get_path()[this->req.get_path().length() - 1] != '/')
+				files.push_back("<a href=\"" + this->req.getPath());
+				if (this->req.getPath()[this->req.getPath().length() - 1] != '/')
 					files.back().append("/");
 				files.back().append(*it + "\">" + *it + "</a>");
 				files.back().append(std::string(51 - (*it).length(), ' ') + std::string(buf));
@@ -662,7 +650,7 @@ void	Response::parseCgiHeaders(void)
 	{
 		if ((*it).find(':') == std::string::npos)
 			break;
-		std::pair<std::string, std::string> header = ft::get_keyval(*it, ": ");
+		std::pair<std::string, std::string> header = ft::getKeyval(*it, ": ");
 
 		// Make sure header is in title case
 		header.first[0] = toupper(header.first[0]);
@@ -704,28 +692,28 @@ void	Response::setContentLang(void)
 		{
 			for (size_t i = lang_pos + 6; (*it)[i] != '"'; i++)
 				lang += (*it)[i];
-			if (this->req.get_headers().count("Accept-Language") &&
-				(this->req.get_headers()["Accept-Language"].find(lang) != std::string::npos ||
-				this->req.get_headers()["Accept-Language"].find("*") != std::string::npos))
+			if (this->req.getHeaders().count("Accept-Language") &&
+				(this->req.getHeaders()["Accept-Language"].find(lang) != std::string::npos ||
+				this->req.getHeaders()["Accept-Language"].find("*") != std::string::npos))
 				this->headers["Content-Language"] = lang;
 			return;
 		}
 	}
 }
 
-Server*	Response::server_match(const std::map<Server*, std::vector<std::string> >& server_names)
+Server*	Response::serverMatch(const std::map<Server*, std::vector<std::string> >& server_names)
 {
 	Server*	matching_server_name = NULL;
 	std::vector<Server *>	best_match;
 	std::pair<int, bool>	ip_port_match;
-	std::string host = this->req.get_header("Host") + "/";
+	std::string host = this->req.getHeader("Host") + "/";
 	URI	host_uri(host);
-	if (host_uri.get_host() == "localhost")
-		host_uri.set_host("127.0.0.1");
-	if (host_uri.get_port() == "")
-		host_uri.set_port("80");
+	if (host_uri.getHost() == "localhost")
+		host_uri.setHost("127.0.0.1");
+	if (host_uri.getPort() == "")
+		host_uri.setPort("80");
 
-	//std::cout << "'host' of HOST field: " << host_uri.get_host() << std::endl;
+	//std::cout << "'host' of HOST field: " << host_uri.getHost() << std::endl;
 	ip_port_match.second = false;
 	ip_port_match.first = 0;
 
@@ -733,18 +721,18 @@ Server*	Response::server_match(const std::map<Server*, std::vector<std::string> 
 	for (std::map<Server*, std::vector<std::string> >::const_iterator it = server_names.begin(); it != server_names.end(); it++)
 	{
 		std::pair<int, bool>	current_match;
-		const Properties& server_properties = it->first->get_properties();
+		const Properties& server_properties = it->first->getProperties();
 
 		//std::cout << "Server listen - " << server_properties.ip_port.first << ":" << server_properties.ip_port.second << std::endl;
 
 		//if server_name matches explicitly
-		if ((std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.get_host()) != server_properties.server_names.end()) || 
-			(std::find(server_properties.server_names.begin(), server_properties.server_names.end(), this->req.uri.get_host()) != server_properties.server_names.end()))
+		if ((std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.getHost()) != server_properties.server_names.end()) || 
+			(std::find(server_properties.server_names.begin(), server_properties.server_names.end(), this->req.uri.getHost()) != server_properties.server_names.end()))
 			matching_server_name = it->first;
 
 		//std::cout << "Server with matching_server_name: " << (void*)matching_server_name << std::endl;
 
-		if (this->req.uri.get_port() == server_properties.ip_port.second || host_uri.get_port() == server_properties.ip_port.second)
+		if (this->req.uri.getPort() == server_properties.ip_port.second || host_uri.getPort() == server_properties.ip_port.second)
 			current_match.second = true;
 		else
 		{
@@ -752,7 +740,7 @@ Server*	Response::server_match(const std::map<Server*, std::vector<std::string> 
 			continue ; //port has to match explicitly
 		}
 
-		if (this->req.uri.get_host() == server_properties.ip_port.first || host_uri.get_host() == server_properties.ip_port.first)
+		if (this->req.uri.getHost() == server_properties.ip_port.first || host_uri.getHost() == server_properties.ip_port.first)
 			current_match.first = 2;
 		else if (server_properties.ip_port.first == "0.0.0.0") //"any ip" matches, but is less explicit
 			current_match.first = 1;
@@ -763,14 +751,14 @@ Server*	Response::server_match(const std::map<Server*, std::vector<std::string> 
 		}
 
 		//if server_name matches explicitly
-		if (std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.get_host()) != server_properties.server_names.end())
+		if (std::find(server_properties.server_names.begin(), server_properties.server_names.end(), host_uri.getHost()) != server_properties.server_names.end())
 		{
-			this->server_name = host_uri.get_host();
+			this->server_name = host_uri.getHost();
 			matching_server_name = it->first;
 		}
-		if (std::find(server_properties.server_names.begin(), server_properties.server_names.end(), this->req.uri.get_host()) != server_properties.server_names.end())
+		if (std::find(server_properties.server_names.begin(), server_properties.server_names.end(), this->req.uri.getHost()) != server_properties.server_names.end())
 		{
-			this->server_name = this->req.uri.get_host();
+			this->server_name = this->req.uri.getHost();
 			matching_server_name = it->first;
 		}
 
@@ -796,9 +784,9 @@ Server*	Response::server_match(const std::map<Server*, std::vector<std::string> 
 		return (matching_server_name);
 }
 
-void	Response::location_match(const std::map<Server*, std::vector<std::string> >& server_names)
+void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >& server_names)
 {
-	Server* server_block = this->server_match(server_names);
+	Server* server_block = this->serverMatch(server_names);
 
 	if (!server_block)
 	{
@@ -808,27 +796,27 @@ void	Response::location_match(const std::map<Server*, std::vector<std::string> >
 	else
 	{
 		//std::cout << "SERVER_BLOCK selected:" << std::endl;
-		// ft::print_iteration(server_block->get_properties().server_names.begin(), server_block->get_properties().server_names.end(), "\n");
+		// ft::printIteration(server_block->getProperties().server_names.begin(), server_block->getProperties().server_names.end(), "\n");
 		if (this->server_name == "")
-			this->server_name = server_block->get_properties().server_names.front();
+			this->server_name = server_block->getProperties().server_names.front();
 	}
 
-	std::string uri_target = "/" + this->req.uri.get_path();
+	std::string uri_target = "/" + this->req.uri.getPath();
 	std::string location_path = "tmp";
 
 	std::map<std::string, Location*>::iterator	loc = server_block->locations.find("");
 
-	if (loc != server_block->locations.end() && this->req.get_method() == "POST")
+	if (loc != server_block->locations.end() && this->req.getMethod() == "POST")
 	{
-		if (!loc->second->get_properties().ext.empty() && this->req.get_path().find(".") != std::string::npos)
+		if (!loc->second->getProperties().ext.empty() && this->req.getPath().find(".") != std::string::npos)
 		{
-			for (std::vector<std::string>::const_iterator it = loc->second->get_properties().ext.begin();
-				it != loc->second->get_properties().ext.end(); it++)
+			for (std::vector<std::string>::const_iterator it = loc->second->getProperties().ext.begin();
+				it != loc->second->getProperties().ext.end(); it++)
 			{
-				if (this->req.get_path().size() >= (*it).size() + 2)
+				if (this->req.getPath().size() >= (*it).size() + 2)
 				{
 					int len = (*it).size();
-					if (this->req.get_path().substr(this->req.get_path().size() - len - 1, len + 1) == "." + *it)
+					if (this->req.getPath().substr(this->req.getPath().size() - len - 1, len + 1) == "." + *it)
 					{
 						location_path = loc->first;
 						this->location_block = loc->second;
@@ -849,7 +837,7 @@ void	Response::location_match(const std::map<Server*, std::vector<std::string> >
 			uri_target += "/";
 		if (uri_target.size() >= location.size() && uri_target.substr(0, location.size()) == location)
 		{
-			this->root = it->second->get_properties().root;
+			this->root = it->second->getProperties().root;
 			this->location_key = it->second->get_location();
 			if (location_path == "")
 				break;
@@ -871,8 +859,8 @@ void	Response::setLocation(void)
 	if (this->response_code != 301 && this->response_code != 201)
 		return;
 
-//	std::cout << "Pre" << this->req.get_path() << "Post" << std::endl;
-	std::string location = "http://" + this->req.get_header("Host") + this->req.get_path();
+//	std::cout << "Pre" << this->req.getPath() << "Post" << std::endl;
+	std::string location = "http://" + this->req.getHeader("Host") + this->req.getPath();
 	if (this->response_code == 301)
 	{
 		location += "/";
@@ -890,7 +878,7 @@ void	Response::setLocation(void)
 
 void	Response::setModified(void)
 {
-	if (this->response_code != 200 || this->is_dir || this->req.get_method() == "POST")
+	if (this->response_code != 200 || this->is_dir || this->req.getMethod() == "POST")
 		return;
 
 	struct stat	result;

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:18:54 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:15:10 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <string.h>
 
 #include <exception>
-#include "includes/Response.hpp"
+#include "Response.hpp"
 
 Client::Client() : server(NULL) {}
 

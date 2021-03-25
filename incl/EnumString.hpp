@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 12:04:00 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:32:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:35:15 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ class EnumString
 	private:
 		std::vector<std::string>	names;
 	public:
-		const	Enum&			get_id() const
+		const	Enum&			getId() const
 		{
 			return (this->id);
 		}
-		const	std::string&	get_str() const
+		const	std::string&	getStr() const
 		{
 			return (this->str);
 		}

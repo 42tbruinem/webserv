@@ -53,7 +53,7 @@ Context *Context::key_server(const std::list<std::string>& args)
 	return (elem);
 }
 
-const Properties&	Context::get_properties()
+const Properties&	Context::getProperties()
 {
 	return (this->properties);
 }
@@ -83,7 +83,7 @@ Context *Context::key_listen(const std::list<std::string>& args)
 	std::string ip_port = args.front();
 	if (ip_port.find(':') != std::string::npos)
 	{
-		std::pair<std::string, std::string>	keyval = ft::get_keyval(ip_port, ":");
+		std::pair<std::string, std::string>	keyval = ft::getKeyval(ip_port, ":");
 		for (size_t i = 0; i < keyval.second.size(); i++)
 			if (keyval.second[i] < '0' || keyval.second[i] > '9')
 				throw std::runtime_error("Error: Invalid port given to 'listen'");
@@ -199,7 +199,7 @@ Context *Context::key_limit_except(const std::list<std::string>& args)
 	for (std::map<std::string, bool>::iterator it = this->properties.accepted_methods.begin(); it != this->properties.accepted_methods.end(); it++)
 		it->second = false;
 	for (std::list<std::string>::const_iterator it = args.begin(); it != args.end(); it++)
-		this->properties.accepted_methods[Method(*it).get_str()] = true;
+		this->properties.accepted_methods[Method(*it).getStr()] = true;
 	return (NULL);
 }
 
@@ -298,7 +298,7 @@ bool	parse_htpasswd(std::map<std::string, std::string>& user_pass, std::string u
 			continue ;
 		if (lines[i].find(':') == std::string::npos)
 			valid = false;
-		user_pass.insert(ft::get_keyval(lines[i], ":"));
+		user_pass.insert(ft::getKeyval(lines[i], ":"));
 	}
 	close(fd);
 	return (valid);
@@ -316,7 +316,7 @@ Context *Context::key_auth_basic_user_file(const std::list<std::string>& args)
 	return (NULL);
 }
 
-Context	*Context::parse_keyword(std::string key, std::list<std::string> args)
+Context	*Context::parseKeyword(std::string key, std::list<std::string> args)
 {
 	const static std::pair<std::string, Context::keyword_func>	pairs[] = {
 		std::pair<std::string, Context::keyword_func>("server", &Context::key_server),

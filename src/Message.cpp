@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:35:25 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Message& Message::operator = (const Message& other)
 	return (*this);
 }
 
-std::string	Message::get_header(const std::string& key)
+std::string	Message::getHeader(const std::string& key)
 {
 	if (this->headers.count(key))
 		return (this->headers[key]);

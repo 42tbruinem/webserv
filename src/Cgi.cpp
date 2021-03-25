@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/17 13:59:06 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:18:21 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:54:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,34 +61,34 @@ Cgi::~Cgi()
 	this->vars.clear();
 }
 
-void	Cgi::set_env(Request *req, std::string path, std::string host, std::string port, std::string phpcgi)
+void	Cgi::setEnv(Request *req, std::string path, std::string host, std::string port, std::string phpcgi)
 {
-	this->vars["AUTH_TYPE"] = req->get_header("Authorization");
-	if (req->get_header("Content-Length") == "")
+	this->vars["AUTH_TYPE"] = req->getHeader("Authorization");
+	if (req->getHeader("Content-Length") == "")
 	{
-		if (req->get_header("Transfer-Encoding") == "")
+		if (req->getHeader("Transfer-Encoding") == "")
 			this->vars["CONTENT_LENGTH"] = "0";
 		else
 		{
 			int	len = 0;
-			for (std::vector<std::string>::iterator it = req->get_body().begin(); it != req->get_body().end(); it++)
+			for (std::vector<std::string>::iterator it = req->getBody().begin(); it != req->getBody().end(); it++)
 				len += (*it).size();
 			this->vars["CONTENT_LENGTH"] = ft::itos(len);
 		}
 	}
 	else
-		this->vars["CONTENT_LENGTH"] = req->get_header("Content-Length");
-	this->vars["CONTENT_TYPE"] = req->get_header("Content-Type");
+		this->vars["CONTENT_LENGTH"] = req->getHeader("Content-Length");
+	this->vars["CONTENT_TYPE"] = req->getHeader("Content-Type");
 	this->vars["GATEWAY_INTERFACE"] = "CGI/1.1";
-	this->vars["PATH_INFO"] = req->uri.get_uri();
+	this->vars["PATH_INFO"] = req->uri.getUri();
 
 	char buf[512];
 	std::string	root = getcwd(buf, 512);
-	this->vars["PATH_TRANSLATED"] = root + req->uri.get_uri();
-	if ( req->get_path().length() > 3 && req->get_path().substr(req->get_path().length() - 4, 4) == ".php" && !phpcgi.empty())
+	this->vars["PATH_TRANSLATED"] = root + req->uri.getUri();
+	if ( req->getPath().length() > 3 && req->getPath().substr(req->getPath().length() - 4, 4) == ".php" && !phpcgi.empty())
 	{
-		this->vars["QUERY_STRING"] = req->uri.get_query();
-		for (std::vector<std::string>::iterator it = req->get_body().begin(); it != req->get_body().end(); it++)
+		this->vars["QUERY_STRING"] = req->uri.getQuery();
+		for (std::vector<std::string>::iterator it = req->getBody().begin(); it != req->getBody().end(); it++)
 			this->vars["QUERY_STRING"] += *it;
 	}
 	else
@@ -96,8 +96,8 @@ void	Cgi::set_env(Request *req, std::string path, std::string host, std::string 
 	this->vars["REMOTE_ADDR"] = "localhost";
 	this->vars["REMOTE_IDENT"] = "";
 	this->vars["REMOTE_USER"] = "";
-	this->vars["REQUEST_METHOD"] = req->get_method();
-	this->vars["REQUEST_URI"] = req->uri.get_uri();
+	this->vars["REQUEST_METHOD"] = req->getMethod();
+	this->vars["REQUEST_URI"] = req->uri.getUri();
 	this->vars["SCRIPT_NAME"] = path;
 	this->vars["SCRIPT_FILENAME"] = path;
 	this->vars["SERVER_NAME"] = host;
@@ -106,7 +106,7 @@ void	Cgi::set_env(Request *req, std::string path, std::string host, std::string 
 	this->vars["SERVER_SOFTWARE"] = "HTTP/1.1";
 	this->vars["REDIRECT_STATUS"] = "true";
 
-	for (std::map<std::string, std::string>::iterator it = req->get_headers().begin(); it != req->get_headers().end(); it++)
+	for (std::map<std::string, std::string>::iterator it = req->getHeaders().begin(); it != req->getHeaders().end(); it++)
 		this->vars["HTTP_" + ft::toUpperStr(it->first)] = it->second;
 
 	int 	i = 0;
@@ -133,7 +133,7 @@ void	Cgi::execute(Request *req, std::string path, std::string host, std::string 
 	int 	in_fd, out_fd, status;
 
 	this->args[0] = ft::strdup(&path[0]);
-	if ((req->get_method() == "POST" || req->get_path().substr(req->get_path().length() - 4, 4) == ".php") &&
+	if ((req->getMethod() == "POST" || req->getPath().substr(req->getPath().length() - 4, 4) == ".php") &&
 		!phpcgi.empty())
 	{
 		free(this->args[0]);
@@ -146,12 +146,12 @@ void	Cgi::execute(Request *req, std::string path, std::string host, std::string 
 	}
 
 	this->args[2] = NULL;
-	this->set_env(req, path, host, port, phpcgi);
+	this->setEnv(req, path, host, port, phpcgi);
 
 	if ((in_fd = open("/tmp/webservin", O_WRONLY | O_CREAT | O_TRUNC, 0666)) == -1)
 		throw std::runtime_error("Error: open failed in Cgi::execute");
 
-	for (std::vector<std::string>::iterator it = req->get_body().begin(); it != req->get_body().end(); it++)
+	for (std::vector<std::string>::iterator it = req->getBody().begin(); it != req->getBody().end(); it++)
 	{
 		if ((write(in_fd, (*it).c_str(), (*it).length())) == -1)
 		{
