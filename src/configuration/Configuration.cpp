@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 18:51:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/15 12:32:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:56:36 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 #include <string>
 #include <list>
 
-//open the config or revert back to the default config file
 Configuration::Configuration(char *config, WebServer* webserv) : webserv(webserv)
 {
 	if (!config)
@@ -31,23 +30,7 @@ Configuration::Configuration(char *config, WebServer* webserv) : webserv(webserv
 		throw std::runtime_error("Error: Failed to open config file for reading");
 }
 
-Configuration::Configuration(const Configuration & src) : webserv(src.webserv)
-{
-	*this = src;
-}
-
-Configuration&	Configuration::operator=(const Configuration & rhs)
-{
-	if (this != &rhs)
-	{
-		this->fd = rhs.fd;
-		this->webserv = rhs.webserv;
-	}
-
-	return *this;
-}
-
-void	strip_comments(std::string& config)
+void	stripComments(std::string& config)
 {
 	size_t	start = std::string::npos;
 	bool	entire_line = false;
@@ -72,33 +55,31 @@ void	strip_comments(std::string& config)
 		config.erase(start, config.size());
 }
 
-void	Configuration::populateTokens(std::list<std::string>& tokens)
+void	populateTokens(std::list<std::string>& tokens, int fd)
 {
 	std::string	raw_content;
 
 	char	*buffer[BUFFER_SIZE + 1];
 	int 	bytes_read = 0;
 
-	//read raw content
 	while (1)
 	{
 		raw_content += std::string((char *)buffer, bytes_read);
-		bytes_read = read(this->fd, buffer, BUFFER_SIZE);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
 			throw std::runtime_error("Error: failed to read config file");
 		if (!bytes_read)
 			break ;
 	}
-	strip_comments(raw_content);
+	stripComments(raw_content);
 	std::vector<std::string>	vec_tokens = ft::split(raw_content, "\n\t\r {};", "{};");
 	tokens = std::list<std::string>(vec_tokens.begin(), vec_tokens.end());
 }
 
-//parse the config into Servers
 void	Configuration::parse()
 {
 	std::list<std::string>	tokens;
-	populateTokens(tokens);
+	populateTokens(tokens, this->fd);
 	std::list<std::string>	arguments;
 	Parse(this->webserv, tokens).parse();
 	std::cout << "Configuration loaded" << std::endl;
@@ -108,5 +89,3 @@ Configuration::~Configuration()
 {
 	close(this->fd);
 }
-
-Configuration::Configuration() : webserv(NULL) {}
