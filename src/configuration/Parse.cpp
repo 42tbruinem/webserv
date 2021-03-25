@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/05 18:58:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:52:03 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:11:35 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Parse::Parse(const Parse& other)
 	*this = other;
 }
 
-Parse&	Parse::operator=(const Parse& other)
+Parse&	Parse::operator = (const Parse& other)
 {
 	if (this != &other)
 	{
@@ -56,7 +56,6 @@ bool	Parse::collectArgs(std::list<std::string>::iterator& it, std::list<std::str
 			body = (*it == "{");
 			break ;
 		}
-		//std::cout << "argument: " << *it << std::endl;
 		args.push_back(*it);
 	}
 	if (it == end)
@@ -84,6 +83,7 @@ void	Parse::parse()
 	std::list<std::string>	args;
 	std::queue<Parse>		children;
 
+	this->context->setProperties(this->context->parent.getProperties());
 	for (std::list<std::string>::iterator it = tokens.begin(); it != tokens.end();)
 	{
 		if (find(context->keywords.begin(), context->keywords.end(), *it) != context->keywords.end())

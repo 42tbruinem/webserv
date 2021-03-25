@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:53:01 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:57:20 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 #include "Context.hpp"
 
 //Constructors
-
-WebServer::WebServer() {}
 
 WebServer::WebServer(const WebServer & other)
 {

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 17:22:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:30:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:58:18 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ class URI
 				void	operator () (std::string updated);	
 		};
 
-		const std::string& operator [] (e_uri id); //get reference
-		PartModifier operator [] (std::string part); //change the URI
+		const std::string& operator [] (e_uri id);
+		PartModifier operator [] (std::string part);
 
 		const std::string&			getUri();
 		const std::string&			getScheme();

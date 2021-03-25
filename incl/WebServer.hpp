@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:22:09 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 17:57:57 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ class WebServer : public Context
 		friend class Configuration;
 		friend class Context;
 
-		WebServer();
 		std::map<int, Server*>							servers;
 		std::map<int, Client*>							clients;
 

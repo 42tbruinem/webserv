@@ -27,20 +27,33 @@
 #include "Utilities.hpp"
 
 //Parent Context
-Context::Context() : parent(*this), properties() {}
+Context::Context() : properties(), parent(*this) {}
 
 //Child Context
-Context::Context(Context & src) : parent(src), properties(src.properties) {}
+Context::Context(const Context& parent) : parent(parent) {}
 
-Context&	Context::operator=(Context & rhs)
+//We are using the 'copy constructor' for something else, so this isn't possible
+// Context&	Context::operator = (Context & rhs)
+// {
+// 	if (this != &rhs)
+// 	{
+// 		this->properties = rhs.properties;
+// 		for (size_t i = 0; i < rhs.children.size(); i++)
+// 			this->children.push_back(new Context(rhs.children[i]));
+// 	}
+
+// 	return *this;
+// }
+
+const Properties&	Context::getProperties() const
 {
-	if (this != &rhs)
-	{
-		this->properties = rhs.properties;
-		this->children = rhs.children;
-	}
+	return (this->properties);
+}
 
-	return *this;
+void	Context::setProperties(const Properties& properties)
+{
+	if (&this->properties != &properties)
+		this->properties = properties;
 }
 
 Context *Context::key_server(const std::list<std::string>& args)
@@ -51,11 +64,6 @@ Context *Context::key_server(const std::list<std::string>& args)
 	Server *elem = new Server(*this);
 	this->children.push_back(elem);
 	return (elem);
-}
-
-const Properties&	Context::getProperties()
-{
-	return (this->properties);
 }
 
 Context	*Context::key_location(const std::list<std::string>& args)

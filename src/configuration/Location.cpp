@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 01:22:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:50:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 18:14:36 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,21 +33,4 @@ Location::~Location() {}
 std::string	Location::get_location() const
 {
 	return (this->location);
-}
-
-Location& Location::operator = (const Location& other)
-{
-	if (this != &other)
-	{
-		this->keywords = other.keywords;
-		this->parent = other.parent;
-		this->children = other.children;
-		this->properties = other.properties;
-	}
-	return (*this);
-}
-
-Location::Location(const Location& other)
-{
-	*this = other;
 }
