@@ -19,13 +19,15 @@
 #include <exception>
 #include "Response.hpp"
 
-Client::Client(Server* server) : server(server)
+Client::Client(Server* server, ssize_t& highest_fd) : server(server)
 {
 	ft::memset(&this->address, '\0', sizeof(this->address));
 	this->addr_len = sizeof(this->address);
 	this->fd = accept(server->server_fd, (struct sockaddr*)&this->address, &this->addr_len);
 	if (this->fd == -1)
 		throw std::runtime_error("Error: failed to open a new client connection");
+	if (this->fd >= highest_fd)
+		highest_fd = this->fd + 1;
 	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error("Error: Could not set client-socket to O_NONBLOCK");
 }

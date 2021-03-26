@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:46:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 19:22:08 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,7 +287,7 @@ void Request::splitRequest(void)
 	}
 
 	for (std::vector<std::string>::iterator it = this->lines.begin(); it != header_end; it++) {
-		if ((*it).find(':') != std::string::npos)
+		if ((*it).find(": ") != std::string::npos)
 		{
 			std::pair<std::string, std::string>	keyval = ft::getKeyval(*it, ": ");
 			this->headers.insert(keyval);

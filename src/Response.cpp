@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:48:57 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 19:21:54 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -639,7 +639,7 @@ void	Response::parseCgiHeaders(void)
 
 	while (it != this->body.end())
 	{
-		if ((*it).find(':') == std::string::npos)
+		if ((*it).find(": ") == std::string::npos)
 			break;
 		std::pair<std::string, std::string> header = ft::getKeyval(*it, ": ");
 

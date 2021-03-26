@@ -25,10 +25,10 @@ class Client
 		Client();
 		Client& operator = (const Client& other);
 		Client(const Client& other);
-		int						fd;
+		ssize_t					fd;
 	public:
 		int		getFd();
-		Client(Server* server);
+		Client(Server* server, ssize_t& highest_fd);
 		~Client();
 };
 

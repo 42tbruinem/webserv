@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 15:04:09 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 19:19:18 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,15 @@ bool	identicalServersDetected(std::vector<Context*>& servers)
 	return (false);
 }
 
-WebServer::WebServer(char *config_path) : Context(), servers(), clients()
+WebServer::WebServer(char *config_path) :
+Context(),
+servers(),
+clients(),
+requests(),
+responses(),
+read_sockets(),
+write_sockets(),
+highest_fd(0)
 {
 	this->keywords.push_back("server");
 
@@ -64,7 +72,7 @@ WebServer::WebServer(char *config_path) : Context(), servers(), clients()
 	{
 		Server *current_server =  reinterpret_cast<Server*>(this->children[i]);
 		this->server_names[current_server] = this->properties.server_names;
-		if (current_server->init())
+		if (current_server->init(this->highest_fd))
 		{
 			FD_SET(current_server->server_fd, &this->read_sockets);
 			this->servers[current_server->server_fd] = current_server;
@@ -88,6 +96,8 @@ WebServer::~WebServer()
 
 void	WebServer::deleteClient(int fd)
 {
+	if (fd + 1 == this->highest_fd)
+		highest_fd--;
 	if (!this->clients.count(fd))
 		throw std::runtime_error("Error: Could not delete client, not in 'clients'");
 	delete this->clients[fd];
@@ -106,7 +116,7 @@ void	WebServer::addNewClients(fd_set& read_set)
 		Server*	server = it->second;
 		if (!FD_ISSET(server->server_fd, &read_set))
 			continue ;
-		new_client = new Client(server);
+		new_client = new Client(server, this->highest_fd);
 		client_fd = new_client->getFd();
 		this->clients[client_fd] = new_client;
 		FD_SET(client_fd, &this->read_sockets);
@@ -129,11 +139,10 @@ void	WebServer::closeSignal(int status)
 	throw CleanExit("Server stopped cleanly", status);
 }
 
-void	WebServer::readRequests(fd_set& read_set, std::vector<int>& closed_clients)
+void	WebServer::readRequests(fd_set& read_set, std::queue<int>& closed_clients)
 {
 	int fd;
 
-	//probably need to actually use this, the response might fail to send, causing us to have to close the client.
 	(void)closed_clients;
 	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
 	{
@@ -146,6 +155,11 @@ void	WebServer::readRequests(fd_set& read_set, std::vector<int>& closed_clients)
 			current_request.process(fd);
 			if (current_request.getDone())
 			{
+				if (current_request.getStatusCode() == 400 || current_request.getStatusCode() == 505)
+				{
+					closed_clients.push(fd);
+					continue ;
+				}
 				responses[fd].push(Response());
 				Response &current_response = responses[fd].back();
 				current_response.setRequest(requests[fd].front());
@@ -160,7 +174,7 @@ void	WebServer::readRequests(fd_set& read_set, std::vector<int>& closed_clients)
 	}
 }
 
-void	WebServer::writeResponses(fd_set& write_set, std::vector<int>& closed_clients)
+void	WebServer::writeResponses(fd_set& write_set, std::queue<int>& closed_clients)
 {
 	int fd;
 
@@ -176,7 +190,10 @@ void	WebServer::writeResponses(fd_set& write_set, std::vector<int>& closed_clien
 				if (current_response.getStatusCode() != 400)
 					std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
 				if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
-					closed_clients.push_back(fd);
+				{
+					closed_clients.push(fd);
+					continue ;
+				}
 				responses[fd].pop();
 				if (responses[fd].empty())
 				{
@@ -190,7 +207,7 @@ void	WebServer::writeResponses(fd_set& write_set, std::vector<int>& closed_clien
 
 void	WebServer::run()
 {
-	std::vector<int>	closed_clients;
+	std::queue<int>		closed_clients;
 	fd_set				read_set;
 	fd_set				write_set;
 
@@ -200,16 +217,17 @@ void	WebServer::run()
 
 	while (1)
 	{
-		closed_clients.clear();
-		size_t		max_fd = ft::max(ft::maxElement(this->servers), ft::maxElement(this->clients)) + 1;
 		read_set = this->read_sockets;
 		write_set = this->write_sockets;
-		if (select(max_fd, &read_set, &write_set, NULL, NULL) == -1)
+		if (select(this->highest_fd, &read_set, &write_set, NULL, NULL) == -1)
 			throw std::runtime_error("Error: select() returned an error");
 		this->addNewClients(read_set);
 		this->writeResponses(write_set, closed_clients);
 		this->readRequests(read_set, closed_clients);
 		for (size_t i = 0; i < closed_clients.size(); i++)
-			this->deleteClient(closed_clients[i]);
+		{
+			this->deleteClient(closed_clients.front());
+			closed_clients.pop();
+		}
 	}
 }
