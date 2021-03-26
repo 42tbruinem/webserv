@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 19:16:11 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:21:07 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Properties.hpp"
+# include "Utilities.hpp"
 
 # include <queue>
 # include <vector>
@@ -31,13 +32,6 @@
 # include <exception>
 
 # define DEFAULT_CONFIG "./config/default.conf"
-
-// enum ResponseCode
-// {
-// 	200 = OK,
-// 	400 = ERROR,
-
-// };
 
 //Heart of the program, contains the main loop that handles all the requests/responses
 

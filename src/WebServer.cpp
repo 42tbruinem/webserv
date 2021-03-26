@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 15:04:09 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 16:14:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,11 @@ void	WebServer::readRequests(fd_set& read_set, std::vector<int>& closed_clients)
 			current_request.process(fd);
 			if (current_request.getDone())
 			{
+				if (current_request.getStatusCode() == 400 || current_request.getStatusCode() == 505)
+				{
+					closed_clients.push_back(fd);
+					continue ;
+				}
 				responses[fd].push(Response());
 				Response &current_response = responses[fd].back();
 				current_response.setRequest(requests[fd].front());

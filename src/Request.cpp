@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:46:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 16:41:44 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <exception>
 #include "Utilities.hpp"
 #include "Method.hpp"
+
+#include <unistd.h>
 
 Request::Request() : uri(""), done(false), status_line(""), status_code(200), method(GET), body_read(0), body_total(-1), body_started(false), encoding(false) {}
 
@@ -64,20 +66,56 @@ bool	Request::isMethod(std::string str)
 	return (false);
 }
 
+std::string	escapeNonPrintable(std::string raw)
+{
+	std::string					nonPrintable = "\r\n";
+	std::vector<std::string>	printable;
+	std::string					modified;
+
+	printable.push_back("\\r");
+	printable.push_back("\\n");
+	for (size_t i = 0; i < raw.size(); i++)
+	{
+		size_t index;
+		index = nonPrintable.find(raw[i]);
+		if (index != std::string::npos)
+			modified += printable[index];
+		else
+			modified += raw[i];
+	}
+	return (modified);
+}
+
 void	Request::process(int fd)
 {
-	int		ret = 0;
+	char		buffer[BUFFER_SIZE + 1];
+	ssize_t		ret;
 
-	std::vector <std::string> lines_read = ft::getLines(fd, "\r\n", &ret, this->encoding);
-
+	ret = read(fd, buffer, BUFFER_SIZE);
 	if (ret == -1)
 	{
+		if (!g_sigpipe)
+			throw std::runtime_error("Error: read failed in Request::process()");
 		this->status_code = 400;
 		this->done = true;
+		return ;
 	}
+	if (ret == 0)
+	{
+		std::cout << std::endl;
+		this->done = true;
+		return ;
+	}
+	buffer[ret] = '\0';
+	std::cout << escapeNonPrintable(std::string(buffer));
+	// if (ret == -1)
+	// {
+	// 	this->status_code = 400;
+	// 	this->done = true;
+	// }
 
-	for (std::vector<std::string>::iterator it = lines_read.begin(); it != lines_read.end() && !this->done; it++)
-		this->done = parseLine(*it);
+	// for (std::vector<std::string>::iterator it = lines_read.begin(); it != lines_read.end() && !this->done; it++)
+	// 	this->done = parseLine(*it);
 }
 
 Request::~Request() {}

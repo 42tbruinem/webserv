@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 19:02:58 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:52:43 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <exception>
 #include "Utilities.hpp"
+
+bool	g_sigpipe;
 
 namespace ft
 {

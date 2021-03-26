@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:38:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:52:56 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
 #ifndef MB
 # define MB 1000000
 #endif
+
+extern bool	g_sigpipe;
 
 namespace ft
 {
