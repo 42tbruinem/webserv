@@ -10,8 +10,6 @@ split big functions:
 
 make sure every socket only gets read from once with every select call!!
 
-get rid of "42 coplien" unused useless functions
-
 bundle resources in the most appropriate container
 (Clients in Server, Request&Response in Client)
 

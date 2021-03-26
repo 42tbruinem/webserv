@@ -6,7 +6,7 @@
 #    By: novan-ve <marvin@codam.nl>                   +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/02/01 20:11:54 by novan-ve      #+#    #+#                  #
-#    Updated: 2021/03/25 17:52:37 by tbruinem      ########   odam.nl          #
+#    Updated: 2021/03/26 18:31:44 by tbruinem      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,8 +61,10 @@ SRC := $(SRC:%=$(SRC_DIR)%)
 
 FLAGS = -Wall -Werror -Wextra -pedantic -std=c++98
 
-ifdef DEBUG
+ifeq ($(DEBUG),1)
 	FLAGS += -g -fsanitize=address
+else ifeq ($(DEBUG),2)
+	FLAGS += -g
 else
 	FLAGS += -O3
 endif

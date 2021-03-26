@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 16:41:44 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 18:28:08 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,12 @@ void	Request::process(int fd)
 	ssize_t		ret;
 
 	ret = read(fd, buffer, BUFFER_SIZE);
-	if (ret == -1)
+	if (ret == -1 || g_sigpipe)
 	{
 		if (!g_sigpipe)
 			throw std::runtime_error("Error: read failed in Request::process()");
+		std::cerr << "Request::process() SIGPIPE" << std::endl;
+		sleep(1);
 		this->status_code = 400;
 		this->done = true;
 		return ;
