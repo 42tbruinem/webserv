@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 01:22:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:14:36 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:48:53 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ Location::Location(Context& parent, const std::string& location) : Context(paren
 
 Location::~Location() {}
 
-std::string	Location::get_location() const
+std::string	Location::getLocation() const
 {
 	return (this->location);
 }

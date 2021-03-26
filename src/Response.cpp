@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:46:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:48:57 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,6 +415,32 @@ void	Response::setContentType()
 	this->headers["Content-Type"] = type;
 }
 
+std::vector<std::string>	readFile(int fd, std::string eol_sequence)
+{
+	std::string					content;
+	std::vector<std::string>	delim(1);
+	char						buffer[BUFFER_SIZE + 1];
+	size_t						reserved_space = 0;
+	ssize_t						ret;
+
+	delim[0] = eol_sequence;
+	ret = 1;
+	while (ret)
+	{
+		ret = read(fd, buffer, BUFFER_SIZE);
+		if (ret == -1)
+			throw std::runtime_error("Error: sigpipe received");
+		buffer[ret] = '\0';
+		if (content.size() + ret + BUFFER_SIZE > reserved_space)
+		{
+			reserved_space += MB;
+			content.reserve(reserved_space);
+		}
+		content.append(std::string(buffer));
+	}
+	return (ft::split(content, delim));
+}
+
 void	Response::setBody(void)
 {
 	if (this->response_code == 201 || this->response_code == 204)
@@ -466,13 +492,11 @@ void	Response::setBody(void)
 			fd = open(this->path.c_str(), O_RDONLY);
 	}
 	else
-	{
 		fd = open(this->path.c_str(), O_RDONLY);
-	}
-	if (fd == -1)
+	if (fd == -1 || read(fd, NULL, 0) == -1)
 		throw std::runtime_error("Error: Response can't open previously checked file in setBody()");
 
-	this->body = ft::getLines(fd, "\n", NULL, false, true);
+	this->body = readFile(fd, "\n");
 
 	close(fd);
 
@@ -524,7 +548,7 @@ void	Response::setBodyError(void)
 		if (fd != -1)
 		{
 			error_page_found = true;
-			this->body = ft::getLines(fd);
+			this->body = readFile(fd, "\n");
 			close(fd);
 		}
 	}
@@ -781,7 +805,7 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 		if (uri_target.size() >= location.size() && uri_target.substr(0, location.size()) == location)
 		{
 			this->root = it->second->getProperties().root;
-			this->location_key = it->second->get_location();
+			this->location_key = it->second->getLocation();
 			if (location_path == "")
 				break;
 			location_path = location;

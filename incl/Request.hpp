@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:41:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:46:23 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ class Request : public Message
 {
 	public:
 		Request();
-		Request(const Request& other);
-		Request& operator = (const Request& other);
 		~Request();
 
 		bool 			isStatusLine(const std::string& line);
@@ -37,6 +35,8 @@ class Request : public Message
 		std::map<std::string, std::string>& getHeaders(void);
 		std::vector<std::string>&	getBody(void);
 		URI							uri;
+		Request(const Request& other);
+		Request& operator = (const Request& other);
 
 	private:
 		//move this to Method

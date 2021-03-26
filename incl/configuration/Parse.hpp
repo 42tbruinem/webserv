@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/05 18:56:00 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:53:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/25 20:28:49 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 # include <string>
 # include <queue>
 # include "Context.hpp"
+
+//Responsible for creating the children Contexts and parsing the given tokens for
+//keywords that match the Context's keywords
 
 class Parse
 {

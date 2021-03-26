@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 19:01:51 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:38:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ namespace ft
 
 	struct tm					getTime(time_t sec = 0);
 
-	std::vector<std::string>	getLines(int fd, std::string eol_sequence = "\n", int *ret = NULL, bool encoding = false, bool file = false, size_t max_lines = std::numeric_limits<size_t>::max());
+	std::vector<std::string>	getLines(int fd, std::string eol_sequence = "\n", int *ret = NULL, bool encoding = false, size_t max_lines = std::numeric_limits<size_t>::max());
 	std::pair<std::string, std::string>	getKeyval(std::string raw, std::string delimiter = ": ");
 
 	size_t	firstOfGroup(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match);

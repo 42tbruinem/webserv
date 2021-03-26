@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/25 17:45:58 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:46:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:37:35 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,13 @@
 
 namespace ft
 {
-	std::vector<std::string>	getLines(int fd, std::string eol_sequence, int* ret, bool encoding, bool file, size_t max_lines)
+	std::vector<std::string>	getLines(int fd, std::string eol_sequence, int* ret, bool encoding, size_t max_lines)
 	{
 		static std::map<int,std::string>	buffers;
 		std::vector<std::string>			lines;
 		char								buf[BUFFER_SIZE + 1];
 		ssize_t								bytes_read = 1;
 		size_t								end_pos;
-		bool								large = false;
-		std::string							largeBuffer = "";
-		unsigned long						total_size = 0;
 
 		for (size_t i = 0; i < max_lines && bytes_read; i++)
 		{
@@ -56,34 +53,13 @@ namespace ft
 					return (lines);
 				}
 				buf[bytes_read] = '\0';
-				if (large)
-					largeBuffer.append(std::string(buf));
-				else
-					buffers[fd].append(std::string(buf));
+				buffers[fd].append(std::string(buf));
 				if (!bytes_read)
 				{
 					if (ret && !lines.size())
 						*ret = -1;
 					break ;
 				}
-				if (!large && buffers[fd].size() >= 100000 && file)
-				{
-					large = true;
-					largeBuffer.reserve(MB);
-					largeBuffer = buffers[fd];
-					total_size += MB;
-				}
-				if (large && largeBuffer.size() + BUFFER_SIZE > total_size)
-				{
-					total_size += MB;
-					largeBuffer.reserve(total_size);
-				}
-			}
-			if (large)
-			{
-				lines.push_back(largeBuffer);
-				buffers[fd].clear();
-				return lines;
 			}
 			end_pos = buffers[fd].find(eol_sequence);
 			if (end_pos != std::string::npos)
@@ -100,12 +76,6 @@ namespace ft
 				else
 					lines[i].append(new_line);
 				buffers[fd] = buffers[fd].substr(end_pos + eol_sequence.size(), buffers[fd].size());
-			}
-			else if (file && buffers[fd][buffers[fd].length()] != '\r' && buffers[fd][buffers[fd].length()] != '\n' && buffers[fd].size())
-			{
-				lines.push_back(buffers[fd]);
-				buffers[fd].clear();
-				return lines;
 			}
 			else
 			{

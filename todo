@@ -7,7 +7,7 @@ remove magic numbers:
 	'80' in Request::parseLine() <- DEFAULT_HTTP_PORT
 split big functions:
 	get_lines
-	webserver::run
+	Request::process()
 
 make sure every socket only gets read from once with every select call!!
 
