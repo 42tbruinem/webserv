@@ -131,6 +131,7 @@ void	Response::sendResponse(int fd)
 	{
 		response_copy->response_code = 400;
 		g_sigpipe = 0;
+		this->finished = true;
 		return;
 	}
 	this->send += ret;
