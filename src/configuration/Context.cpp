@@ -277,7 +277,10 @@ bool	parseHTPassword(std::map<std::string, std::string>& user_pass, std::string 
 		if (!lines[i].size() || lines[i][0] == '#')
 			continue ;
 		if (lines[i].find(':') == std::string::npos)
+		{
 			valid = false;
+			break ;
+		}
 		user_pass.insert(ft::getKeyval(lines[i], ":"));
 	}
 	close(fd);

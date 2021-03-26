@@ -36,14 +36,16 @@ class Server : public Context
 	public:
 		Server(Context& parent);
 		~Server();
-		bool	init();
+
+		bool	init(ssize_t& highest_fd);
 
 		std::map<std::string, Location*, ft::SizeCompare>	locations;
-		int							server_fd;
+		ssize_t												server_fd;
 	private:
+		struct sockaddr_in									address;
+
 		Server(const Server &src);
 		Server&	operator = (const Server &rhs);
-		struct sockaddr_in			address;
 };
 
 #endif

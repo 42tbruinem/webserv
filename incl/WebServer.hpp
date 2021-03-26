@@ -60,12 +60,13 @@ class WebServer : public Context
 
 		fd_set											read_sockets;
 		fd_set											write_sockets;
+		ssize_t											highest_fd;
 		std::map<Server*, std::vector<std::string> >	server_names;
 
 		void	deleteClient(int fd);
 		void	addNewClients(fd_set& read_set);
-		void	readRequests(fd_set& read_set, std::vector<int>& closed_clients);
-		void	writeResponses(fd_set& write_set, std::vector<int>& closed_clients);
+		void	readRequests(fd_set& read_set, std::queue<int>& closed_clients);
+		void	writeResponses(fd_set& write_set, std::queue<int>& closed_clients);
 		static void	closeSignal(int status);
 
 		WebServer(const WebServer& other);
