@@ -37,10 +37,10 @@ const Properties&	Context::getProperties() const
 	return (this->properties);
 }
 
-void	Context::setProperties(const Properties& properties)
+void	Context::initProperties()
 {
-	if (&this->properties != &properties)
-		this->properties = properties;
+	if (&this->properties != &this->parent.properties)
+		this->properties = this->parent.properties;
 }
 
 Context *Context::key_server(const std::list<std::string>& args)
@@ -251,11 +251,11 @@ bool	parseHTPassword(std::map<std::string, std::string>& user_pass, std::string 
 		return (false);
 	bool valid = true;
 	int	bytes_read;
-	char	buf[257];
+	char	buf[BUFFER_SIZE + 1];
 	std::string result = "";
 	std::vector<std::string>	lines;
 
-	while ((bytes_read = read(fd, buf, 256)) > 0)
+	while ((bytes_read = read(fd, buf, BUFFER_SIZE)) > 0)
 	{
 		buf[bytes_read] = '\0';
 		result.append(std::string(buf));

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/05 18:58:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:11:35 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:00:53 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void	Parse::parse()
 	std::list<std::string>	args;
 	std::queue<Parse>		children;
 
-	this->context->setProperties(this->context->parent.getProperties());
+	this->context->initProperties();
 	for (std::list<std::string>::iterator it = tokens.begin(); it != tokens.end();)
 	{
 		if (find(context->keywords.begin(), context->keywords.end(), *it) != context->keywords.end())

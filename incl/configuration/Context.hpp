@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/05 18:35:46 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:51:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:01:49 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,18 @@ class Context
 	protected:
 		Properties					properties;
 		std::vector<Context*>		children;
-	public:
 		const Context&				parent;
-		const Properties&			getProperties() const;
-		void						setProperties(const Properties& properties);
-		std::vector<std::string>	keywords;
-		Context						*parseKeyword(std::string key, std::list<std::string> args);
+
 		Context(const Context& parent);
-		Context();
 		Context& operator = (Context& rhs);
+		Context();
 		virtual ~Context();
+	public:
+		std::vector<std::string>	keywords;
+
+		const Properties&			getProperties() const;
+		void						initProperties();
+		Context						*parseKeyword(std::string key, std::list<std::string> args);
 };
 
 #endif

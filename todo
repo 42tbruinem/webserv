@@ -2,7 +2,6 @@ Rewrite CGI to use 2 pipes instead of in/out file
 write legible checks for status_codes
 introduce defines for status codes
 remove magic numbers:
-	max_connections
 	'8' in Request::parseLine()
 	'80' in Request::parseLine() <- DEFAULT_HTTP_PORT
 split big functions:

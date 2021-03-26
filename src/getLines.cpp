@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/25 17:45:58 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:37:35 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 14:53:14 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,6 @@
 #include <iostream>
 
 #include "Utilities.hpp"
-
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 256
-#endif
 
 namespace ft
 {
