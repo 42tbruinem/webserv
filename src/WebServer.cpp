@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:56:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/26 15:04:09 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,8 +184,6 @@ void	WebServer::writeResponses(fd_set& write_set, std::vector<int>& closed_clien
 					FD_SET(fd, &this->read_sockets);
 				}
 			}
-			else
-				break;
 		}
 	}
 }
