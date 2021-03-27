@@ -1,0 +1,11 @@
+GET / HTTP/1.1\r\n
+Transfer-Encoding: chunked\r\n
+User-Agent: PostmanRuntime/7.26.10\r\n
+Accept: */*\r\n
+Postman-Token: a68a95fc-5642-4305-b5d7-5ec5ae9fe24d\r\n
+Host: localhost:8080\r\n
+Accept-Encoding: gzip, deflate, br\r\n
+Connection: keep-alive\r\n
+\r\n
+0\r\n
+\r\n
