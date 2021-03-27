@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:35:25 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:57:56 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,3 +61,5 @@ std::string Message::getBodyLen()
 }
 
 Message::~Message() {}
+
+//virtual bool	transaction() = 0;

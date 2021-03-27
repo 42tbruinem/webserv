@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/26 19:26:10 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:26:39 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@
 #include "Properties.hpp"
 #include "Cgi.hpp"
 
-Response::Response() : server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
+bool g_sigpipe;
+
+Response::Response(Request& req) : req(req), server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
 {
 	this->status_codes[200] = "200 OK";
 	this->status_codes[201] = "201 Created";
@@ -43,9 +45,8 @@ Response::Response() : server_name(""), location_block(NULL), is_dir(false), roo
 	this->status_codes[505] = "505 HTTP Version Not Supported";
 }
 
-Response::Response(const Response& other) 
+Response::Response(const Response& other) : req(other.req)
 {
-
 	*this = other;
 }
 

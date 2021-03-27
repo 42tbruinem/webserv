@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 14:46:23 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 21:12:53 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,30 @@
 class Request : public Message
 {
 	public:
-		Request();
+		Request(std::string content, bool encoding);
 		~Request();
 
 		bool 			isStatusLine(const std::string& line);
+		bool 			parseStatusLine(const std::string& line);
+		bool			parseHeader(std::string& line);
 		bool			parseLine(std::string line);
 		void			splitRequest(void);
-		void			process(int fd);
+		bool			process();
 
-		bool			getDone(void) const;
-		std::string		getMethod(void) const;
-		std::string		getPath(void) const;
-		int				getStatusCode(void) const;
-		std::map<std::string, std::string>& getHeaders(void);
-		std::vector<std::string>&	getBody(void);
-		URI							uri;
+		bool								getDone(void) const;
+		std::string							getMethod(void) const;
+		std::string							getPath(void) const;
+		int									getStatusCode(void) const;
+		std::map<std::string, std::string>&	getHeaders(void);
+		std::vector<std::string>&			getBody(void);
+		URI									uri;
 		Request(const Request& other);
 		Request& operator = (const Request& other);
 
 	private:
 		//move this to Method
 		bool						isMethod(std::string str);
+		std::string					content;
 		bool						done;
 		std::string 				status_line;
 		std::vector<std::string>	lines;

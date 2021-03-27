@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 15:52:56 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:28:07 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,13 @@
 # define MB 1000000
 #endif
 
-extern bool	g_sigpipe;
+#ifndef PAGE_SIZE
+# define PAGE_SIZE 4096
+#endif
+
+#ifndef PIPE_CAPACITY_MAX
+# define PIPE_CAPACITY_MAX (PAGE_SIZE * 16)
+#endif
 
 namespace ft
 {

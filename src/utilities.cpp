@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/26 15:52:43 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:26:28 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,10 +239,8 @@ namespace ft
 			case '\'': return "\\\'";
 			case '\?': return "\\\?";
 			case '\\': return "\\\\";
+			default: return std::string(1, c);
 		}
-		std::string tmp;
-		tmp.push_back(c);
-		return tmp;
 	}
 
 	std::string	rawString(std::string const &str)

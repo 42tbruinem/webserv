@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 15:21:07 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:27:46 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,8 @@ class WebServer : public Context
 		std::map<int, Server*>							servers;
 		std::map<int, Client*>							clients;
 
-		std::map<int, std::queue<Request> >				requests;
-		std::map<int, std::queue<Response> >			responses;
-
-		fd_set											read_sockets;
-		fd_set											write_sockets;
-		ssize_t											highest_fd;
+		IOSet											ioset;
+		IOSet											activity;
 		std::map<Server*, std::vector<std::string> >	server_names;
 
 		void	deleteClient(int fd);

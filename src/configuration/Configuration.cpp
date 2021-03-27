@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 18:51:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:56:36 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:49:58 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ void	populateTokens(std::list<std::string>& tokens, int fd)
 
 	while (1)
 	{
-		raw_content += std::string((char *)buffer, bytes_read);
+		if (bytes_read)
+			raw_content += std::string((char *)buffer, bytes_read);
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
 			throw std::runtime_error("Error: failed to read config file");
@@ -80,7 +81,6 @@ void	Configuration::parse()
 {
 	std::list<std::string>	tokens;
 	populateTokens(tokens, this->fd);
-	std::list<std::string>	arguments;
 	Parse(this->webserv, tokens).parse();
 	std::cout << "Configuration loaded" << std::endl;
 }

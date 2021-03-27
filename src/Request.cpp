@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 19:26:03 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:27:04 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,17 @@
 #include "Utilities.hpp"
 #include "Method.hpp"
 
-#include <unistd.h>
-
-Request::Request() : uri(""), done(false), status_line(""), status_code(200), method(GET), body_read(0), body_total(-1), body_started(false), encoding(false) {}
+Request::Request(std::string content, bool encoding) :
+uri(""),
+content(content),
+done(false),
+status_line(""),
+status_code(200),
+method(GET),
+body_read(0),
+body_total(-1),
+body_started(false),
+encoding(encoding) {}
 
 Request::Request(const Request& other) : uri(other.uri), method(other.method)
 {
@@ -66,58 +74,41 @@ bool	Request::isMethod(std::string str)
 	return (false);
 }
 
-std::string	escapeNonPrintable(std::string raw)
+bool	Request::parseHeader(std::string& line)
 {
-	std::string					nonPrintable = "\r\n";
-	std::vector<std::string>	printable;
-	std::string					modified;
-
-	printable.push_back("\\r");
-	printable.push_back("\\n");
-	for (size_t i = 0; i < raw.size(); i++)
-	{
-		size_t index;
-		index = nonPrintable.find(raw[i]);
-		if (index != std::string::npos)
-			modified += printable[index];
-		else
-			modified += raw[i];
-	}
-	return (modified);
+	(void)line;
+	return (true);
 }
 
-void	Request::process(int fd)
+bool	Request::process()
 {
-	char		buffer[BUFFER_SIZE + 1];
-	ssize_t		ret;
+	//might need to skip over empty lines at the start
 
-	ret = read(fd, buffer, BUFFER_SIZE);
-	if (ret == -1 || g_sigpipe)
-	{
-		if (!g_sigpipe)
-			throw std::runtime_error("Error: read failed in Request::process()");
-		std::cerr << "Request::process() SIGPIPE" << std::endl;
-		sleep(1);
-		this->status_code = 400;
-		this->done = true;
-		return ;
-	}
-	if (ret == 0)
-	{
-		std::cout << std::endl;
-		this->done = true;
-		return ;
-	}
-	buffer[ret] = '\0';
-	std::cout << escapeNonPrintable(std::string(buffer));
-	// if (ret == -1)
-	// {
-	// 	this->status_code = 400;
-	// 	this->done = true;
-	// }
+	//parse status_line
+	size_t		end_of_statusline = this->content.find("\r\n");
+	if (!parseStatusLine(this->content.substr(0, end_of_statusline)))
+		return (false);
 
-	// for (std::vector<std::string>::iterator it = lines_read.begin(); it != lines_read.end() && !this->done; it++)
-	// 	this->done = parseLine(*it);
+	//parse headers
+	size_t		end_of_headers = this->content.find("\r\n\r\n");
+	std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, end_of_headers), "\r\n");
+	for (size_t i = 0; i < headers.size(); i++)
+	{
+		if (!parseHeader(headers[i]))
+			return (false);
+	}
+	if (encoding)
+	{
+
+
+
+	}
+	else
+	{
+
+
+	}
+	return (true);
 }
 
 Request::~Request() {}
@@ -156,6 +147,29 @@ bool Request::isStatusLine(const std::string &line)
 		request_target += parts[i];
 	
 	return (true);
+}
+
+bool Request::parseStatusLine(const std::string &line)
+{
+	if (line.empty() || !isStatusLine(line))
+		return (false);
+	int start = line.length() - 1;
+
+	while (line[start] == ' ' || (line[start] > 9 && line[start] < 13))
+		start--;
+
+	int end = start;
+
+	while (line[start] != ' ')
+		start--;
+
+	if (line.substr(start + 1, end - start) != "HTTP/1.1")
+	{
+		this->status_code = 505;
+		return (true);
+	}
+	this->status_line = line;
+	return (false);
 }
 
 bool	Request::parseLine(std::string line)

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/06 09:37:47 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:23:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 13:56:13 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 # include "Utilities.hpp"
 
 #define DEFAULT_MAX_BODY_SIZE 1000000
+
+//-----------------------------------------------AUTHORIZATION-----------------------------------------------
 
 bool	Authorization::operator () (std::string userpass) const
 {
@@ -39,7 +41,10 @@ Authorization&	Authorization::operator = (const Authorization& other)
 	return (*this);
 }
 
-Authorization::Authorization() : enabled(false), realm(""), user_pass() {}
+Authorization::Authorization() :
+enabled(false),
+realm(""),
+user_pass() {}
 
 Authorization::Authorization(const Authorization& other)
 {
@@ -48,14 +53,20 @@ Authorization::Authorization(const Authorization& other)
 
 Authorization::~Authorization() {}
 
-//----------------------------------------------------------------------------------------------
+//------------------------------------------PROPERTIES----------------------------------------------------
 
 Properties::Properties() :
 	root(""),
 	ip_port(std::pair<std::string, std::string>("0.0.0.0", "80")),
-	server_names(), index(), auto_index(false),
-	accepted_methods(), error_pages(), client_max_body_size(DEFAULT_MAX_BODY_SIZE),
-	php_cgi(""), cgi_param(), ext()
+	server_names(),
+	index(),
+	auto_index(false),
+	accepted_methods(),
+	error_pages(),
+	client_max_body_size(DEFAULT_MAX_BODY_SIZE),
+	php_cgi(""),
+	cgi_param(),
+	ext()
 {
 	auth.enabled = false;
 	for (size_t i = 0; i < E_METHOD_END; i++)
@@ -63,12 +74,17 @@ Properties::Properties() :
 }
 
 Properties::Properties(const Properties& other) :
-	root(other.root), ip_port(other.ip_port),
+	root(other.root),
+	ip_port(other.ip_port),
 	server_names(other.server_names),
-	index(other.index), auto_index(other.auto_index),
+	index(other.index),
+	auto_index(other.auto_index),
 	accepted_methods(other.accepted_methods),
-	error_pages(other.error_pages), client_max_body_size(other.client_max_body_size), php_cgi(other.php_cgi),
-	cgi_param(other.cgi_param), ext(other.ext) {}
+	error_pages(other.error_pages),
+	client_max_body_size(other.client_max_body_size),
+	php_cgi(other.php_cgi),
+	cgi_param(other.cgi_param),
+	ext(other.ext) {}
 
 Properties& Properties::operator = (const Properties& other)
 {

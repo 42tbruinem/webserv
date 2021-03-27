@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:42:12 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 21:25:31 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class Server;
 class Response : public Message
 {
 	public:
-		Response();
+		Response(Request& req);
 		Response(const Response& other);
 		Response& operator = (const Response& other);
 		~Response();

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 19:26:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:26:13 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 CleanExit::CleanExit(const char *what_arg, int exit_code) : std::runtime_error(what_arg), exit_code(exit_code) _GLIBCXX_TXN_SAFE{}
 CleanExit::~CleanExit() _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_USE_NOEXCEPT {}
 
-//Constructors
+//-----------------------------------------------Constructors-----------------------------------------------
 
 bool	identicalServersDetected(std::vector<Context*>& servers)
 {
@@ -52,11 +52,8 @@ WebServer::WebServer(char *config_path) :
 Context(),
 servers(),
 clients(),
-requests(),
-responses(),
-read_sockets(),
-write_sockets(),
-highest_fd(0)
+ioset(),
+activity()
 {
 	this->keywords.push_back("server");
 
@@ -82,7 +79,7 @@ highest_fd(0)
 		throw std::runtime_error("Error: All of the specified servers failed to initialize");
 }
 
-//Destructor
+//-----------------------------------------------Destructor-----------------------------------------------
 
 WebServer::~WebServer()
 {
@@ -92,7 +89,7 @@ WebServer::~WebServer()
 	this->servers.clear();
 }
 
-//Util
+//-----------------------------------------------Util-----------------------------------------------
 
 void	WebServer::deleteClient(int fd)
 {
@@ -142,38 +139,29 @@ void	WebServer::closeSignal(int status)
 void	WebServer::readRequests(fd_set& read_set, std::queue<int>& closed_clients)
 {
 	int fd;
+	int	ret;
 
 	(void)closed_clients;
 	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
 	{
 		fd = it->first;
-		if (FD_ISSET(fd, &read_set))
+		Client*	client = it->second;
+		if (!activity[SET_READ][fd])
+			continue ;
+		ret = client->receive();
+		if (ret == -1)
+			closed_clients.push(fd);
+		else if (ret)
 		{
-			if (!requests[fd].size())
-				requests[fd].push(Request());
-			Request &current_request = requests[fd].front();
-			current_request.process(fd);
-			if (current_request.getDone())
-			{
-				if (current_request.getStatusCode() == 400 || current_request.getStatusCode() == 505)
-				{
-<<<<<<< HEAD
-					closed_clients.push_back(fd);
-=======
-					closed_clients.push(fd);
->>>>>>> main
-					continue ;
-				}
-				responses[fd].push(Response());
-				Response &current_response = responses[fd].back();
-				current_response.setRequest(requests[fd].front());
-				current_response.locationMatch(this->server_names);
-				current_response.composeResponse();
-				requests[fd].pop();
-				if (requests[fd].empty())
-					FD_CLR(fd, &this->read_sockets);
-				FD_SET(fd, &this->write_sockets);
-			}
+			// responses[fd].push(Response());
+			// Response &current_response = responses[fd].back();
+			// current_response.setRequest(requests[fd].front());
+			// current_response.locationMatch(this->server_names);
+			// current_response.composeResponse();
+			// requests[fd].pop();
+			// if (requests[fd].empty())
+			ioset[SET_READ][fd] = CLEAR;
+			ioset[SET_WRITE][fd] = SET;
 		}
 	}
 }
@@ -185,27 +173,35 @@ void	WebServer::writeResponses(fd_set& write_set, std::queue<int>& closed_client
 	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
 	{
 		fd = it->first;
-		if (FD_ISSET(fd, &write_set))
+		if (!activity[SET_WRITE][fd])
+			continue ;
+		Client* client = it->second;
+		int		ret = client->send();
+		if (ret == -1)
+			closed_clients.push(fd);
+		else if (ret)
 		{
-			Response& current_response = responses[fd].front();
-			current_response.sendResponse(fd);
-			if (current_response.getFinished())
-			{
-				if (current_response.getStatusCode() != 400)
-					std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
-				if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
-				{
-					closed_clients.push(fd);
-					continue ;
-				}
-				responses[fd].pop();
-				if (responses[fd].empty())
-				{
-					FD_CLR(fd, &this->write_sockets);
-					FD_SET(fd, &this->read_sockets);
-				}
-			}
+			ioset[SET_WRITE][fd] = CLEAR;
+			ioset[SET_READ][fd] = SET;
 		}
+		// Response& current_response = responses[fd].front();
+		// current_response.sendResponse(fd);
+		// if (current_response.getFinished())
+		// {
+		// 	if (current_response.getStatusCode() != 400)
+		// 		std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+		// 	if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
+		// 	{
+		// 		closed_clients.push(fd);
+		// 		continue ;
+		// 	}
+		// 	responses[fd].pop();
+		// 	if (responses[fd].empty())
+		// 	{
+		// 		ioset[SET_WRITE][fd] = CLEAR;
+		// 		ioset[SET_READ][fd] = SET;
+		// 	}
+		// }
 	}
 }
 
