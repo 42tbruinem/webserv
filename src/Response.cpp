@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:26:39 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:33:29 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 #include "Server.hpp"
 #include "Properties.hpp"
 #include "Cgi.hpp"
-
-bool g_sigpipe;
 
 Response::Response(Request& req) : req(req), server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
 {

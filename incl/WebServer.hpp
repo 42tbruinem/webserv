@@ -6,11 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-<<<<<<< HEAD
-/*   Updated: 2021/03/27 22:27:46 by tbruinem      ########   odam.nl         */
-=======
-/*   Updated: 2021/03/27 11:19:34 by tbruinem      ########   odam.nl         */
->>>>>>> main
+/*   Updated: 2021/03/27 22:32:47 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +20,8 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Properties.hpp"
-<<<<<<< HEAD
-# include "Utilities.hpp"
-=======
 # include "IOSet.hpp"
->>>>>>> main
+# include "Utilities.hpp"
 
 # include <queue>
 # include <vector>

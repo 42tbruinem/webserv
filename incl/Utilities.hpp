@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:28:07 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:33:44 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 #ifndef PIPE_CAPACITY_MAX
 # define PIPE_CAPACITY_MAX (PAGE_SIZE * 16)
 #endif
+
+extern bool g_sigpipe;
 
 namespace ft
 {

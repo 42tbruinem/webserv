@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:30:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 22:33:10 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,6 @@ WebServer::WebServer(char *config_path) :
 Context(),
 servers(),
 clients(),
-<<<<<<< HEAD
-=======
-requests(),
-responses(),
->>>>>>> main
 ioset(),
 activity()
 {
