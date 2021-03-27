@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/27 10:19:45 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 11:50:50 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:23:33 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-//FDWrapper
+//-----------------------------------------------FDWrapper-----------------------------------------------
 
 FDWrapper::FDWrapper(fd_set& set, ssize_t& nfd, int fd) : set(set), nfd(nfd), fd(fd) {}
 
@@ -44,7 +44,7 @@ FDWrapper::operator bool()
 	return ((bool)FD_ISSET(this->fd, &this->set));
 }
 
-//FDSet
+//-----------------------------------------------FDSet-----------------------------------------------
 
 FDSet::FDSet(ssize_t& nfd) : set(), nfd(nfd)
 {
@@ -74,7 +74,12 @@ FDWrapper FDSet::operator [] (ssize_t fd)
 	return (FDWrapper(this->set, nfd, fd));
 }
 
-//IOSet
+FDSet::operator fd_set* ()
+{
+	return (&this->set);
+}
+
+//-----------------------------------------------IOSet-----------------------------------------------
 
 IOSet::IOSet() : nfd(0), read(nfd), write(nfd), except(nfd) {}
 
@@ -89,11 +94,6 @@ FDSet&	IOSet::operator [] (enum e_IOSET set)
 	if (set == SET_WRITE)
 		return (this->write);
 	return (this->except);
-}
-
-FDSet::operator fd_set* ()
-{
-	return (&this->set);
 }
 
 int	IOSet::select()

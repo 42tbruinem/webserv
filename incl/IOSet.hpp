@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/27 09:56:53 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 11:50:26 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:28:29 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ class FDWrapper
 		FDWrapper(const FDWrapper& other);
 		~FDWrapper();
 		FDWrapper(fd_set& set, ssize_t& nfd, int fd);
-		void	operator = (bool set);		//FDWrapper = bool
-		operator bool();				//bool = FDWrapper
+		void	operator = (bool set);
+		operator bool();
 };
 
 class FDSet
@@ -52,9 +52,6 @@ class FDSet
 		operator fd_set*();
 };
 
-//Incorporate select() in IOSet wrapper
-
-//Might want to make a pointer to indicate which FDSet is responsible for the highest numbered fd
 class IOSet
 {
 	private:
