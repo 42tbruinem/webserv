@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/27 09:56:53 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 12:28:29 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:37:04 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #include <Utilities.hpp>
 #include <sys/select.h>
+
+# define SET true
+# define CLEAR false
 
 enum	e_IOSET
 {

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 11:30:11 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 12:38:32 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ activity()
 		this->server_names[current_server] = this->properties.server_names;
 		if (current_server->init())
 		{
-			this->ioset[SET_READ][current_server->fd] = true;
+			this->ioset[SET_READ][current_server->fd] = SET;
 			this->servers[current_server->fd] = current_server;
 		}
 	}
@@ -97,8 +97,8 @@ void	WebServer::deleteClient(int fd)
 		throw std::runtime_error("Error: Could not delete client, not in 'clients'");
 	delete this->clients[fd];
 	this->clients.erase(fd);
-	ioset[SET_READ][fd] = false;
-	ioset[SET_WRITE][fd] = false;
+	ioset[SET_READ][fd] = CLEAR;
+	ioset[SET_WRITE][fd] = CLEAR;
 }
 
 void	WebServer::addNewClients()
@@ -114,7 +114,7 @@ void	WebServer::addNewClients()
 		new_client = new Client(server);
 		client_fd = new_client->getFd();
 		this->clients[client_fd] = new_client;
-		ioset[SET_READ][client_fd] = true;
+		ioset[SET_READ][client_fd] = SET;
 	}
 }
 
@@ -158,8 +158,8 @@ void	WebServer::readRequests(std::queue<int>& closed_clients)
 			current_response.composeResponse();
 			requests[fd].pop();
 			if (requests[fd].empty())
-				ioset[SET_READ][fd] = false;
-			ioset[SET_WRITE][fd] = true;
+				ioset[SET_READ][fd] = CLEAR;
+			ioset[SET_WRITE][fd] = SET;
 		}
 	}
 }
@@ -187,8 +187,8 @@ void	WebServer::writeResponses(std::queue<int>& closed_clients)
 			responses[fd].pop();
 			if (responses[fd].empty())
 			{
-				ioset[SET_WRITE][fd] = false;
-				ioset[SET_READ][fd] = true;
+				ioset[SET_WRITE][fd] = CLEAR;
+				ioset[SET_READ][fd] = SET;
 			}
 		}
 	}
