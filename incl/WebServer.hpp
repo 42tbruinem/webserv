@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 19:16:11 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:19:34 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Properties.hpp"
+# include "IOSet.hpp"
 
 # include <queue>
 # include <vector>
@@ -64,15 +65,14 @@ class WebServer : public Context
 		std::map<int, std::queue<Request> >				requests;
 		std::map<int, std::queue<Response> >			responses;
 
-		fd_set											read_sockets;
-		fd_set											write_sockets;
-		ssize_t											highest_fd;
+		IOSet											ioset;
+		IOSet											activity;
 		std::map<Server*, std::vector<std::string> >	server_names;
 
 		void	deleteClient(int fd);
-		void	addNewClients(fd_set& read_set);
-		void	readRequests(fd_set& read_set, std::queue<int>& closed_clients);
-		void	writeResponses(fd_set& write_set, std::queue<int>& closed_clients);
+		void	addNewClients();
+		void	readRequests(std::queue<int>& closed_clients);
+		void	writeResponses(std::queue<int>& closed_clients);
 		static void	closeSignal(int status);
 
 		WebServer(const WebServer& other);

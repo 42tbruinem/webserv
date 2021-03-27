@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 15:24:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:51:12 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:19:11 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Client
 		ssize_t					fd;
 	public:
 		int		getFd();
-		Client(Server* server, ssize_t& highest_fd);
+		Client(Server* server);
 		~Client();
 };
 

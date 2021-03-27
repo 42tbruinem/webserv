@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:52:32 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:19:02 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,13 @@
 #include <exception>
 #include "Response.hpp"
 
-Client::Client(Server* server, ssize_t& highest_fd) : server(server)
+Client::Client(Server* server) : server(server)
 {
 	ft::memset(&this->address, '\0', sizeof(this->address));
 	this->addr_len = sizeof(this->address);
-	this->fd = accept(server->server_fd, (struct sockaddr*)&this->address, &this->addr_len);
+	this->fd = accept(server->fd, (struct sockaddr*)&this->address, &this->addr_len);
 	if (this->fd == -1)
 		throw std::runtime_error("Error: failed to open a new client connection");
-	if (this->fd >= highest_fd)
-		highest_fd = this->fd + 1;
 	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error("Error: Could not set client-socket to O_NONBLOCK");
 }

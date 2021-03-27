@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/26 19:19:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:30:11 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,11 @@ servers(),
 clients(),
 requests(),
 responses(),
-read_sockets(),
-write_sockets(),
-highest_fd(0)
+ioset(),
+activity()
 {
 	this->keywords.push_back("server");
 
-	FD_ZERO(&this->read_sockets);
-	FD_ZERO(&this->write_sockets);
 	Configuration	config(config_path, this);
 	config.parse();
 
@@ -72,10 +69,10 @@ highest_fd(0)
 	{
 		Server *current_server =  reinterpret_cast<Server*>(this->children[i]);
 		this->server_names[current_server] = this->properties.server_names;
-		if (current_server->init(this->highest_fd))
+		if (current_server->init())
 		{
-			FD_SET(current_server->server_fd, &this->read_sockets);
-			this->servers[current_server->server_fd] = current_server;
+			this->ioset[SET_READ][current_server->fd] = true;
+			this->servers[current_server->fd] = current_server;
 		}
 	}
 	if (this->servers.empty())
@@ -96,17 +93,15 @@ WebServer::~WebServer()
 
 void	WebServer::deleteClient(int fd)
 {
-	if (fd + 1 == this->highest_fd)
-		highest_fd--;
 	if (!this->clients.count(fd))
 		throw std::runtime_error("Error: Could not delete client, not in 'clients'");
 	delete this->clients[fd];
 	this->clients.erase(fd);
-	FD_CLR(fd, &this->read_sockets);
-	FD_CLR(fd, &this->write_sockets);
+	ioset[SET_READ][fd] = false;
+	ioset[SET_WRITE][fd] = false;
 }
 
-void	WebServer::addNewClients(fd_set& read_set)
+void	WebServer::addNewClients()
 {
 	int					client_fd;
 	Client				*new_client;
@@ -114,12 +109,12 @@ void	WebServer::addNewClients(fd_set& read_set)
 	for (std::map<int, Server*>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		Server*	server = it->second;
-		if (!FD_ISSET(server->server_fd, &read_set))
+		if (!activity[SET_READ][server->fd])
 			continue ;
-		new_client = new Client(server, this->highest_fd);
+		new_client = new Client(server);
 		client_fd = new_client->getFd();
 		this->clients[client_fd] = new_client;
-		FD_SET(client_fd, &this->read_sockets);
+		ioset[SET_READ][client_fd] = true;
 	}
 }
 
@@ -133,73 +128,67 @@ void	WebServer::closeSignal(int status)
 	this_copy->clients.clear();
 	this_copy->servers.clear();
 
-	FD_ZERO(&this_copy->read_sockets);
-	FD_ZERO(&this_copy->write_sockets);
-
 	throw CleanExit("Server stopped cleanly", status);
 }
 
-void	WebServer::readRequests(fd_set& read_set, std::queue<int>& closed_clients)
+void	WebServer::readRequests(std::queue<int>& closed_clients)
 {
 	int fd;
 
-	(void)closed_clients;
 	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
 	{
 		fd = it->first;
-		if (FD_ISSET(fd, &read_set))
+		if (!activity[SET_READ][fd])
+			continue ;
+		if (!requests[fd].size())
+			requests[fd].push(Request());
+		Request &current_request = requests[fd].front();
+		current_request.process(fd);
+		if (current_request.getDone())
 		{
-			if (!requests[fd].size())
-				requests[fd].push(Request());
-			Request &current_request = requests[fd].front();
-			current_request.process(fd);
-			if (current_request.getDone())
+			if (current_request.getStatusCode() == 400 || current_request.getStatusCode() == 505)
 			{
-				if (current_request.getStatusCode() == 400 || current_request.getStatusCode() == 505)
-				{
-					closed_clients.push(fd);
-					continue ;
-				}
-				responses[fd].push(Response());
-				Response &current_response = responses[fd].back();
-				current_response.setRequest(requests[fd].front());
-				current_response.locationMatch(this->server_names);
-				current_response.composeResponse();
-				requests[fd].pop();
-				if (requests[fd].empty())
-					FD_CLR(fd, &this->read_sockets);
-				FD_SET(fd, &this->write_sockets);
+				closed_clients.push(fd);
+				continue ;
 			}
+			responses[fd].push(Response());
+			Response &current_response = responses[fd].back();
+			current_response.setRequest(requests[fd].front());
+			current_response.locationMatch(this->server_names);
+			current_response.composeResponse();
+			requests[fd].pop();
+			if (requests[fd].empty())
+				ioset[SET_READ][fd] = false;
+			ioset[SET_WRITE][fd] = true;
 		}
 	}
 }
 
-void	WebServer::writeResponses(fd_set& write_set, std::queue<int>& closed_clients)
+void	WebServer::writeResponses(std::queue<int>& closed_clients)
 {
 	int fd;
 
 	for (std::map<int, Client*>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
 	{
 		fd = it->first;
-		if (FD_ISSET(fd, &write_set))
+		if (!activity[SET_WRITE][fd])
+			continue ;
+		Response& current_response = responses[fd].front();
+		current_response.sendResponse(fd);
+		if (current_response.getFinished())
 		{
-			Response& current_response = responses[fd].front();
-			current_response.sendResponse(fd);
-			if (current_response.getFinished())
+			if (current_response.getStatusCode() != 400)
+				std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+			if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
 			{
-				if (current_response.getStatusCode() != 400)
-					std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
-				if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
-				{
-					closed_clients.push(fd);
-					continue ;
-				}
-				responses[fd].pop();
-				if (responses[fd].empty())
-				{
-					FD_CLR(fd, &this->write_sockets);
-					FD_SET(fd, &this->read_sockets);
-				}
+				closed_clients.push(fd);
+				continue ;
+			}
+			responses[fd].pop();
+			if (responses[fd].empty())
+			{
+				ioset[SET_WRITE][fd] = false;
+				ioset[SET_READ][fd] = true;
 			}
 		}
 	}
@@ -208,8 +197,6 @@ void	WebServer::writeResponses(fd_set& write_set, std::queue<int>& closed_client
 void	WebServer::run()
 {
 	std::queue<int>		closed_clients;
-	fd_set				read_set;
-	fd_set				write_set;
 
 	this_copy = this;
 	signal(SIGINT, WebServer::closeSignal);
@@ -217,13 +204,12 @@ void	WebServer::run()
 
 	while (1)
 	{
-		read_set = this->read_sockets;
-		write_set = this->write_sockets;
-		if (select(this->highest_fd, &read_set, &write_set, NULL, NULL) == -1)
+		activity = ioset;
+		if (activity.select() == -1)
 			throw std::runtime_error("Error: select() returned an error");
-		this->addNewClients(read_set);
-		this->writeResponses(write_set, closed_clients);
-		this->readRequests(read_set, closed_clients);
+		this->addNewClients();
+		this->writeResponses(closed_clients);
+		this->readRequests(closed_clients);
 		for (size_t i = 0; i < closed_clients.size(); i++)
 		{
 			this->deleteClient(closed_clients.front());
