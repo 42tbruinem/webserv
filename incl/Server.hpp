@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:30:08 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:47:44 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:30:39 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ class Server : public Context
 		Server(Context& parent);
 		~Server();
 
-		bool	init(ssize_t& highest_fd);
+		bool	init();
 
 		std::map<std::string, Location*, ft::SizeCompare>	locations;
-		ssize_t												server_fd;
+		ssize_t												fd;
 	private:
 		struct sockaddr_in									address;
 

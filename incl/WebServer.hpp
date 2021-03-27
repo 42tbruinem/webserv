@@ -6,7 +6,11 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 14:16:49 by tbruinem      #+#    #+#                 */
+<<<<<<< HEAD
 /*   Updated: 2021/03/27 22:27:46 by tbruinem      ########   odam.nl         */
+=======
+/*   Updated: 2021/03/27 11:19:34 by tbruinem      ########   odam.nl         */
+>>>>>>> main
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +24,11 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Properties.hpp"
+<<<<<<< HEAD
 # include "Utilities.hpp"
+=======
+# include "IOSet.hpp"
+>>>>>>> main
 
 # include <queue>
 # include <vector>
@@ -60,9 +68,9 @@ class WebServer : public Context
 		std::map<Server*, std::vector<std::string> >	server_names;
 
 		void	deleteClient(int fd);
-		void	addNewClients(fd_set& read_set);
-		void	readRequests(fd_set& read_set, std::queue<int>& closed_clients);
-		void	writeResponses(fd_set& write_set, std::queue<int>& closed_clients);
+		void	addNewClients();
+		void	readRequests(std::queue<int>& closed_clients);
+		void	writeResponses(std::queue<int>& closed_clients);
 		static void	closeSignal(int status);
 
 		WebServer(const WebServer& other);

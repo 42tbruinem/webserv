@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 18:47:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/27 11:30:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,24 +43,22 @@ Server::Server(Context& parent) : Context(parent)
 
 Server::~Server()
 {
-	close(this->server_fd);
+	close(this->fd);
 }
 
 //Utils
 
-bool	Server::init(ssize_t& highest_fd)
+bool	Server::init()
 {
 	int 	opt = 1;
 
 	// Create socket file descriptor
-	this->server_fd = socket(PF_INET, SOCK_STREAM, 0);
-	if (this->server_fd == -1)
+	this->fd = socket(PF_INET, SOCK_STREAM, 0);
+	if (this->fd == -1)
 		throw std::runtime_error("Error: Creation of socket failed");
-	if (this->server_fd >= highest_fd)
-		highest_fd = this->server_fd + 1;
 
 	// Set additional options for the socket and the socket type
-	if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
+	if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
 		throw std::runtime_error("Error: Failed to set socket options");
 
 	// Assign transport address
@@ -72,15 +70,15 @@ bool	Server::init(ssize_t& highest_fd)
 	ft::memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
 
 	// Attach socket to transport address
-	if (bind(this->server_fd, reinterpret_cast<struct sockaddr*>(&this->address), sizeof( this->address )) == -1)
+	if (bind(this->fd, reinterpret_cast<struct sockaddr*>(&this->address), sizeof( this->address )) == -1)
 		return false;
 
-	if (listen(this->server_fd, MAX_CONNECTIONS) == -1)
+	if (listen(this->fd, MAX_CONNECTIONS) == -1)
 		throw std::runtime_error("Error: could not set server-socket to listening mode");
 	std::cout << "Server created!" << std::endl << std::endl;
 
 	//Set the resulting socketfd to be non blocking
-	if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) == -1)
+	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error("Error: Could not set server-socket to O_NONBLOCK");
 
 	return true;
