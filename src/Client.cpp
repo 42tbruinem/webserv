@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 11:08:07 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 11:40:41 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 		requests.push(Request(request, encoding));
 		i = end_of_request;
 	}
-	remainder = bytes.substr(i, ret);
+	remainder = bytes.substr(i, ret + remainder.size());
 	return (true);
 }
 
