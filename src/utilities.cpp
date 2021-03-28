@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:26:28 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 10:53:43 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,12 +185,17 @@ namespace ft
 
 	std::string	toUpperStr(const std::string& str)
 	{
-		std::string 	upperstr = "";
+		std::string 	upper_string;
 
-		for (unsigned long i = 0; i < str.size(); i++)
-			upperstr.push_back(toupper(str[i]));
-
-		return upperstr;
+		upper_string.reserve(str.size());
+		for (size_t i = 0 ; i < str.size(); i++)
+		{
+			if (str[i] >= 'a' && str[i] <= 'z')
+				upper_string += (str[i] - 'a') + 'A';
+			else
+				upper_string += str[i];
+		}
+		return upper_string;
 	}
 
 	bool	isUpperStr(const std::string& str)

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 15:24:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:30:55 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 11:08:29 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Client
 		Client& operator = (const Client& other);
 		Client(const Client& other);
 	public:
-		int		receive();
+		int		receive(const std::map<Server*, std::vector<std::string> >& server_names);
 		int		send();
 		int		getFd();
 		Client(Server* server);

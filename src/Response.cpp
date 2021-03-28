@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:33:29 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 10:59:10 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 
 Response::Response(Request& req) : req(req), server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
 {
+	this->response_code = req.getStatusCode();
 	this->status_codes[200] = "200 OK";
 	this->status_codes[201] = "201 Created";
 	this->status_codes[204] = "204 No Content";
@@ -46,6 +47,7 @@ Response::Response(Request& req) : req(req), server_name(""), location_block(NUL
 Response::Response(const Response& other) : req(other.req)
 {
 	*this = other;
+	this->response_code = req.getStatusCode();
 }
 
 void	Response::setRequest(Request& req)

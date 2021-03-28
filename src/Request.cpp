@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:27:04 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 10:54:18 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ Request& Request::operator = (const Request& other)
 		this->body_total = other.body_total;
 		this->body_started = other.body_started;
 		this->encoding = other.encoding;
+		this->content = other.content;
 	}
 	return (*this);
 }
@@ -76,9 +77,52 @@ bool	Request::isMethod(std::string str)
 
 bool	Request::parseHeader(std::string& line)
 {
-	(void)line;
+	if (line.find(": ") == std::string::npos)
+		return (false);
+	std::pair<std::string, std::string>	keyval;
+
+	keyval = ft::getKeyval(line);
+	this->headers[keyval.first] = keyval.second;
 	return (true);
 }
+
+bool	parseChunksIntoBody(std::vector<std::string> chunks, std::vector<std::string>& body)
+{
+	std::string	raw;
+	
+	for (std::vector<std::string>::iterator it = chunks.begin(); it != chunks.end(); it++)
+	{
+		if (it->empty() || !ft::onlyConsistsOf(*it, "0123456789abcdefABCDEF"))
+			return (false);
+		*it = ft::toUpperStr(*it);
+		if (!ft::onlyConsistsOf(*it, "0123456789ABCDEF"))
+			return (false);
+		size_t chunk_size = ft::stoul(*it, "0123456789ABCDEF");
+		it++;
+
+		for (; it != chunks.end() && raw.size() < chunk_size; it++)
+		{
+			if (raw.size())
+				raw += "\r\n";
+			if (raw.size() + it->size() > chunk_size)
+				return (false);
+			raw += *it;
+		}
+		if (!chunk_size)
+			break ;
+	}
+	if (raw.size())
+		body = ft::split(raw, "\r\n");
+	else
+		body.clear();
+	return (true);
+}
+
+// bool	Request::parseBody(std::vector<std::string>	body)
+// {
+// 	(void)body;
+// 	return (true);
+// }
 
 bool	Request::process()
 {
@@ -86,28 +130,27 @@ bool	Request::process()
 
 	//parse status_line
 	size_t		end_of_statusline = this->content.find("\r\n");
-	if (!parseStatusLine(this->content.substr(0, end_of_statusline)))
+	std::string	status_line = this->content.substr(0, end_of_statusline);
+//	std::cerr << "STATUS_LINE: |" << status_line << "|" << std::endl;
+	if (!parseStatusLine(status_line))
 		return (false);
 
 	//parse headers
 	size_t		end_of_headers = this->content.find("\r\n\r\n");
-	std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, end_of_headers), "\r\n");
+	std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, (end_of_headers - (end_of_statusline + 2))), "\r\n");
 	for (size_t i = 0; i < headers.size(); i++)
 	{
 		if (!parseHeader(headers[i]))
 			return (false);
 	}
-	if (encoding)
-	{
+	this->body = ft::split(this->content.substr(end_of_headers + 4, this->content.size()), "\r\n");
+	//parse chunks
+	if (encoding && !parseChunksIntoBody(this->body, this->body))
+		return (false);
 
-
-
-	}
-	else
-	{
-
-
-	}
+	//parse body
+	// if (!parseBody(body))
+	// 	return (false);
 	return (true);
 }
 
@@ -155,7 +198,7 @@ bool Request::parseStatusLine(const std::string &line)
 		return (false);
 	int start = line.length() - 1;
 
-	while (line[start] == ' ' || (line[start] > 9 && line[start] < 13))
+	while (line[start] == ' ' || (line[start] >= 9 && line[start] <= 13))
 		start--;
 
 	int end = start;
@@ -166,10 +209,38 @@ bool Request::parseStatusLine(const std::string &line)
 	if (line.substr(start + 1, end - start) != "HTTP/1.1")
 	{
 		this->status_code = 505;
-		return (true);
+		return (false);
 	}
 	this->status_line = line;
-	return (false);
+	int	end_pos_method = this->status_line.find(' ');
+	int start_pos_path = end_pos_method;
+
+	while (this->status_line[start_pos_path] == ' ')
+		start_pos_path++;
+
+	int end_pos_path = this->status_line.length() - 1;
+	while (this->status_line[end_pos_path] == ' ')
+		end_pos_path--;
+	end_pos_path -= 8;
+
+	while (this->status_line[end_pos_path] == ' ')
+		end_pos_path--;
+	end_pos_path++;
+
+	std::string methodpart = this->status_line.substr(0, end_pos_method);
+	if (isMethod(methodpart))
+		this->method = Method(methodpart);
+	else
+	{
+		this->status_code = 405;
+		return (false);
+	}
+	this->path = this->status_line.substr(start_pos_path, end_pos_path - start_pos_path);
+	std::cout << "Request received to: " << this->path << std::endl;
+	this->uri = URI(path);
+	if (this->uri.getPort() == "" && this->uri.getScheme() == "HTTP")
+		this->uri.setPort("80");
+	return (true);
 }
 
 bool	Request::parseLine(std::string line)
@@ -357,6 +428,33 @@ void Request::splitRequest(void)
 				this->body.push_back(*it);
 		}
 	}
+}
+
+void	Request::printRequest(void) const
+{
+	// Print values for debugging
+	std::cout << std::endl << "Request:" << std::endl;
+	std::cout << "  Headers:" << std::endl;
+	std::cout << "\t" << this->method.getStr() << " " << this->path << " HTTP/1.1" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++)
+		std::cout << "\t" << it->first << ": " << it->second << std::endl;
+	if (this->body.size())
+	{
+		int	amount_printed = 0;
+		std::cout << "  Body:" << std::endl;
+		for (std::vector<std::string>::const_iterator it = this->body.begin(); it != this->body.end() && amount_printed < 5; it++)
+		{
+			if ((*it).length() > 1000)
+			{
+				std::cout << "\t" << ft::rawString((*it).substr(0, 1000)) << "..." << std::endl;
+				amount_printed++;
+			}
+			else
+				std::cout << "\t" << *it << std::endl;
+		}
+	}
+	else
+		std::cout << "  No body" << std::endl;
 }
 
 bool			Request::getDone() const { return this->done; }

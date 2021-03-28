@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:30:34 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 11:08:07 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,11 +122,10 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 			break ;
 		if (end_of_request == -1)
 		{
-			std::cerr << "Can't determine body end yet!\n";
+//			std::cerr << "Can't determine body end yet!\n";
 			return (false);
 		}
-		request = bytes.substr(i, end_of_request);
-		std::cout << "----\n" << request << "----\n" << std::endl;
+		request = bytes.substr(i, (end_of_request - i));
 		requests.push(Request(request, encoding));
 		i = end_of_request;
 	}
@@ -137,7 +136,7 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 //read once, as much as we can
 //split it into requests
 //process all of the finished requests (if more than one)
-int		Client::receive()
+int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_names)
 {
 	if (!readRequests(this->fd, this->remainder, this->requests))
 		return (-1);
@@ -147,14 +146,34 @@ int		Client::receive()
 	{
 		if (!this->requests.front().process())
 			return (-1);
+		this->requests.front().printRequest();
+		this->responses.push(Response(this->requests.front()));
+		this->responses.back().setRequest(this->requests.front());
+		this->responses.back().locationMatch(server_names);
+		this->responses.back().composeResponse();
+		this->requests.pop();
+		//create response
+		//pop request
 	}
 	return (1);
 }
 
 int		Client::send()
 {
-	return (0);
-
+	for (; this->responses.size(); )
+	{
+		Response& current_response = responses.front();
+		current_response.sendResponse(fd);
+		if (current_response.getFinished())
+		{
+			if (current_response.getStatusCode() != 400)
+				std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+			responses.pop();
+		}
+		else
+			break ;
+	}
+	return (1);
 }
 
 int		Client::getFd()

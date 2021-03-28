@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 21:12:53 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 10:55:09 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,16 @@
 # include "Message.hpp"
 # include "Method.hpp"
 # include "URI.hpp"
+# include <string>
+# include <vector>
 
 class Request : public Message
 {
 	public:
 		Request(std::string content, bool encoding);
 		~Request();
+
+		void			printRequest(void) const;
 
 		bool 			isStatusLine(const std::string& line);
 		bool 			parseStatusLine(const std::string& line);

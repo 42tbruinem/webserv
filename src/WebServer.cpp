@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 22:33:10 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 11:09:01 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ void	WebServer::readRequests(std::queue<int>& closed_clients)
 		Client*	client = it->second;
 		if (!activity[SET_READ][fd])
 			continue ;
-		ret = client->receive();
+		ret = client->receive(this->server_names);
 		if (ret == -1)
 			closed_clients.push(fd);
 		else if (ret)
