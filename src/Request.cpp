@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 15:21:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 19:13:28 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,19 +95,20 @@ bool	parseChunksIntoBody(std::vector<std::string> chunks, std::vector<std::strin
 		if (it->empty() || !ft::onlyConsistsOf(*it, "0123456789abcdefABCDEF"))
 			return (false);
 		*it = ft::toUpperStr(*it);
-		if (!ft::onlyConsistsOf(*it, "0123456789ABCDEF"))
-			return (false);
 		size_t chunk_size = ft::stoul(*it, "0123456789ABCDEF");
 		it++;
-
-		for (; it != chunks.end() && raw.size() < chunk_size; it++)
+		std::string chunk_content;
+		for (; it != chunks.end() && chunk_content.size() < chunk_size; it++)
 		{
-			if (raw.size())
-				raw += "\r\n";
-			if (raw.size() + it->size() > chunk_size)
+			if (chunk_content.size())
+				chunk_content += "\r\n";
+			if (chunk_content.size() + it->size() > chunk_size)
 				return (false);
-			raw += *it;
+			chunk_content += *it;
+			if (chunk_content.size() == chunk_size)
+				break ;
 		}
+		raw += chunk_content;
 		if (!chunk_size)
 			break ;
 	}
@@ -128,6 +129,11 @@ bool	Request::process()
 {
 	//might need to skip over empty lines at the start
 
+	if (this->content.size() >= 10 * MB)
+	{
+		int i = 0;
+		(void)i;
+	}
 	//parse status_line
 	size_t		end_of_statusline = this->content.find("\r\n");
 	std::string	status_line = this->content.substr(0, end_of_statusline);

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 13:12:39 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 19:13:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ bool	bodyEnd(std::string bytes, ssize_t& end_of_request, bool& encoding)
 
 	headers = bytes.substr(0, end_of_request + 2);
 	end_of_request += 4;
+//	std::cerr << "HEADERS: |" << headers << "|" << std::endl;
 	if (containsHeader(headers, "Transfer-Encoding", header_field))
 	{
 		std::pair<std::string, std::string>	keyval;
@@ -109,7 +110,10 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 	bytes.reserve((size_t)ret + remainder.size());
 	buffer[ret] = '\0';
 	bytes = remainder + std::string((char*)buffer, ret);
-	std::cerr << ft::rawString(bytes) << std::endl;
+	std::cerr << "REQUEST HAS A SIZE OF " << bytes.size() << " SO FAR" << std::endl;
+	if (bytes.size() > 10 * MB)
+		(void)fd;
+//	std::cerr << ft::rawString(bytes) << std::endl;
 
 	size_t	i = 0;
 	for (;i < bytes.size();)
@@ -123,10 +127,7 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 			!bodyEnd(bytes.substr(i, bytes.size()), end_of_request, encoding))
 			break ;
 		if (end_of_request == -1)
-		{
-//			std::cerr << "Can't determine body end yet!\n";
 			return (false);
-		}
 		request = bytes.substr(i, (end_of_request - i));
 		requests.push(Request(request, encoding));
 		i = end_of_request;
