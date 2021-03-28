@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 11:40:41 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 13:12:39 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,13 +80,14 @@ bool	bodyEnd(std::string bytes, ssize_t& end_of_request, bool& encoding)
 
 		keyval = ft::getKeyval(header_field);
 		value = ft::split(keyval.second, " ");
+		ft::printIteration(value.begin(), value.end());
 		if (value.size() != 1 || !ft::onlyConsistsOf(value[0], "0123456789"))
 		{
 			end_of_request = -1;
 			return (true);
 		}
 		end_of_request += ft::stoul(value[0]);
-		if ((size_t)end_of_request >= bytes.size())
+		if ((size_t)end_of_request > bytes.size())
 			return (false);
 		return (true);
 	}
@@ -108,6 +109,7 @@ bool	readRequests(int fd, std::string& remainder, std::queue<Request>& requests)
 	bytes.reserve((size_t)ret + remainder.size());
 	buffer[ret] = '\0';
 	bytes = remainder + std::string((char*)buffer, ret);
+	std::cerr << ft::rawString(bytes) << std::endl;
 
 	size_t	i = 0;
 	for (;i < bytes.size();)
@@ -152,8 +154,6 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 		this->responses.back().locationMatch(server_names);
 		this->responses.back().composeResponse();
 		this->requests.pop();
-		//create response
-		//pop request
 	}
 	return (1);
 }
