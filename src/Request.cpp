@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 10:54:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/28 15:21:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,192 +243,192 @@ bool Request::parseStatusLine(const std::string &line)
 	return (true);
 }
 
-bool	Request::parseLine(std::string line)
-{
-	if (line.empty())
-	{
-		if (this->status_line.empty())
-			return false;
-		else if (this->status_line.size() && this->lines.size() == 0)
-		{
-			this->status_code = 400;
-			return (true);
-		}
-		else if (this->status_line.size() && this->lines.size() > 0 && !this->encoding)
-		{
-			if (this->body_total != 0 && this->body_total > this->body_read)
-			{
-				if (this->body_started)
-				{
-					this->body_read += 2;
-					this->lines.push_back("\r\n");
-				}
-				else
-					this->lines.push_back("\r");
-				this->body_started = true;
-				return false;
-			}
+// bool	Request::parseLine(std::string line)
+// {
+// 	if (line.empty())
+// 	{
+// 		if (this->status_line.empty())
+// 			return false;
+// 		else if (this->status_line.size() && this->lines.size() == 0)
+// 		{
+// 			this->status_code = 400;
+// 			return (true);
+// 		}
+// 		else if (this->status_line.size() && this->lines.size() > 0 && !this->encoding)
+// 		{
+// 			if (this->body_total != 0 && this->body_total > this->body_read)
+// 			{
+// 				if (this->body_started)
+// 				{
+// 					this->body_read += 2;
+// 					this->lines.push_back("\r\n");
+// 				}
+// 				else
+// 					this->lines.push_back("\r");
+// 				this->body_started = true;
+// 				return false;
+// 			}
 
-			int	end_pos_method = this->status_line.find(' ');
-			int start_pos_path = end_pos_method;
+// 			int	end_pos_method = this->status_line.find(' ');
+// 			int start_pos_path = end_pos_method;
 
-			while (this->status_line[start_pos_path] == ' ')
-				start_pos_path++;
+// 			while (this->status_line[start_pos_path] == ' ')
+// 				start_pos_path++;
 
-			int end_pos_path = this->status_line.length() - 1;
-			while (this->status_line[end_pos_path] == ' ')
-				end_pos_path--;
-			end_pos_path -= 8;
+// 			int end_pos_path = this->status_line.length() - 1;
+// 			while (this->status_line[end_pos_path] == ' ')
+// 				end_pos_path--;
+// 			end_pos_path -= 8;
 
-			while (this->status_line[end_pos_path] == ' ')
-				end_pos_path--;
-			end_pos_path++;
+// 			while (this->status_line[end_pos_path] == ' ')
+// 				end_pos_path--;
+// 			end_pos_path++;
 
-			std::string methodpart = this->status_line.substr(0, end_pos_method);
-			if (isMethod(methodpart))
-				this->method = Method(methodpart);
-			else
-				this->status_code = 405;
-			this->path = this->status_line.substr(start_pos_path, end_pos_path - start_pos_path);
-			std::cout << "Request received to: " << this->path << std::endl;
-			this->uri = URI(path);
-			if (this->uri.getPort() == "" && this->uri.getScheme() == "HTTP")
-				this->uri.setPort("80");
-			this->splitRequest();
+// 			std::string methodpart = this->status_line.substr(0, end_pos_method);
+// 			if (isMethod(methodpart))
+// 				this->method = Method(methodpart);
+// 			else
+// 				this->status_code = 405;
+// 			this->path = this->status_line.substr(start_pos_path, end_pos_path - start_pos_path);
+// 			std::cout << "Request received to: " << this->path << std::endl;
+// 			this->uri = URI(path);
+// 			if (this->uri.getPort() == "" && this->uri.getScheme() == "HTTP")
+// 				this->uri.setPort("80");
+// 			this->splitRequest();
 
-			return (true);
-		}
-	}
-	else if (isStatusLine(line))
-	{
-		if (this->status_line == "")
-		{
-			int start = line.length() - 1;
+// 			return (true);
+// 		}
+// 	}
+// 	else if (isStatusLine(line))
+// 	{
+// 		if (this->status_line == "")
+// 		{
+// 			int start = line.length() - 1;
 
-			while (line[start] == ' ' || (line[start] >= 10 && line[start] <= 13))
-				start--;
+// 			while (line[start] == ' ' || (line[start] >= 10 && line[start] <= 13))
+// 				start--;
 
-			int end = start;
+// 			int end = start;
 
-			while (line[start] != ' ')
-				start--;
+// 			while (line[start] != ' ')
+// 				start--;
 
-			if (line.substr(start + 1, end - start) != "HTTP/1.1")
-			{
-				this->status_code = 505;
-				return (true);
-			}
-			this->status_line = line;
-		}
-		return (false);
-	}
-	else if (line.find(':') != std::string::npos && !this->body_started)
-	{
-		if (this->status_line == "")
-		{
-			this->status_code = 400;
-			return (true);
-		}
-		size_t carriage_return = line.find_last_of('\r');
+// 			if (line.substr(start + 1, end - start) != "HTTP/1.1")
+// 			{
+// 				this->status_code = 505;
+// 				return (true);
+// 			}
+// 			this->status_line = line;
+// 		}
+// 		return (false);
+// 	}
+// 	else if (line.find(':') != std::string::npos && !this->body_started)
+// 	{
+// 		if (this->status_line == "")
+// 		{
+// 			this->status_code = 400;
+// 			return (true);
+// 		}
+// 		size_t carriage_return = line.find_last_of('\r');
 
-		if (line.size() >= 16 && line.substr(0, 16) == "Content-Length: ")
-		{
-			if (carriage_return != std::string::npos)
-				this->body_total = ft::stoi(line.substr(16, line.length() - 17));
-			else
-				this->body_total = ft::stoi(line.substr(16, line.length() - 16));
-		}
-		else if (line.size() >= 19 && line.substr(0, 19) == "Transfer-Encoding: ")
-			this->encoding = true;
+// 		if (line.size() >= 16 && line.substr(0, 16) == "Content-Length: ")
+// 		{
+// 			if (carriage_return != std::string::npos)
+// 				this->body_total = ft::stoi(line.substr(16, line.length() - 17));
+// 			else
+// 				this->body_total = ft::stoi(line.substr(16, line.length() - 16));
+// 		}
+// 		else if (line.size() >= 19 && line.substr(0, 19) == "Transfer-Encoding: ")
+// 			this->encoding = true;
 
-		if (carriage_return != std::string::npos && carriage_return + 1 == line.size())
-			this->lines.push_back(line.substr(0, line.size() - 1));
-		else
-			this->lines.push_back(line);
-		return (false);
-	}
-	if (this->status_line != "")
-	{
-		if (body_started)
-		{
-			//pleasefix
-			//useless check??
-			size_t carriage = line.find_last_of('\r');
-			if (carriage != std::string::npos && carriage + 1 == line.size())
-				line += "\n";
-			else
-				line += "\r\n";
+// 		if (carriage_return != std::string::npos && carriage_return + 1 == line.size())
+// 			this->lines.push_back(line.substr(0, line.size() - 1));
+// 		else
+// 			this->lines.push_back(line);
+// 		return (false);
+// 	}
+// 	if (this->status_line != "")
+// 	{
+// 		if (body_started)
+// 		{
+// 			//pleasefix
+// 			//useless check??
+// 			size_t carriage = line.find_last_of('\r');
+// 			if (carriage != std::string::npos && carriage + 1 == line.size())
+// 				line += "\n";
+// 			else
+// 				line += "\r\n";
 
-			std::string newLine = "";
+// 			std::string newLine = "";
 
-			for (int i = 0; line[i] != '\0'; i++)
-			{
-				newLine.push_back(line[i]);
-				this->body_read++;
-				if (this->body_read == this->body_total)
-					break;
-			}
-			if (this->encoding && this->lines.back() != "")
-				this->lines.back().append(newLine);
-			else
-				this->lines.push_back(newLine);
+// 			for (int i = 0; line[i] != '\0'; i++)
+// 			{
+// 				newLine.push_back(line[i]);
+// 				this->body_read++;
+// 				if (this->body_read == this->body_total)
+// 					break;
+// 			}
+// 			if (this->encoding && this->lines.back() != "")
+// 				this->lines.back().append(newLine);
+// 			else
+// 				this->lines.push_back(newLine);
 
-			if (this->body_read >= this->body_total)
-			{
-				if (!this->encoding)
-					return (this->parseLine(""));
-				this->body_read = 0;
-				this->body_total = -1;
-				this->body_started = false;
-			}
-		}
-		else if (this->encoding)
-		{
-			if (this->body_total == -1 && line != "")
-			{
-				this->body_total = ft::stoi(ft::toUpperStr(line), "0123456789ABCDEF");
-				if (this->body_total == 0)
-					this->encoding = false;
-				else
-					this->body_started = true;
-			}
-			else if (line == "")
-				this->lines.push_back(line);
-		}
-		return (false);
-	}
-	this->status_code = 400;
-	return (true);
-}
+// 			if (this->body_read >= this->body_total)
+// 			{
+// 				if (!this->encoding)
+// 					return (this->parseLine(""));
+// 				this->body_read = 0;
+// 				this->body_total = -1;
+// 				this->body_started = false;
+// 			}
+// 		}
+// 		else if (this->encoding)
+// 		{
+// 			if (this->body_total == -1 && line != "")
+// 			{
+// 				this->body_total = ft::stoi(ft::toUpperStr(line), "0123456789ABCDEF");
+// 				if (this->body_total == 0)
+// 					this->encoding = false;
+// 				else
+// 					this->body_started = true;
+// 			}
+// 			else if (line == "")
+// 				this->lines.push_back(line);
+// 		}
+// 		return (false);
+// 	}
+// 	this->status_code = 400;
+// 	return (true);
+// }
 
-void Request::splitRequest(void) 
-{
+// void Request::splitRequest(void) 
+// {
 
-	std::vector<std::string>::iterator	header_end;
+// 	std::vector<std::string>::iterator	header_end;
 
-	for (header_end = this->lines.begin(); header_end != this->lines.end(); header_end++) {
-		if (*header_end == "\r" || *header_end == "")
-			break;
-	}
+// 	for (header_end = this->lines.begin(); header_end != this->lines.end(); header_end++) {
+// 		if (*header_end == "\r" || *header_end == "")
+// 			break;
+// 	}
 
-	for (std::vector<std::string>::iterator it = this->lines.begin(); it != header_end; it++) {
-		if ((*it).find(": ") != std::string::npos)
-		{
-			std::pair<std::string, std::string>	keyval = ft::getKeyval(*it, ": ");
-			this->headers.insert(keyval);
-		}
-	}
+// 	for (std::vector<std::string>::iterator it = this->lines.begin(); it != header_end; it++) {
+// 		if ((*it).find(": ") != std::string::npos)
+// 		{
+// 			std::pair<std::string, std::string>	keyval = ft::getKeyval(*it, ": ");
+// 			this->headers.insert(keyval);
+// 		}
+// 	}
 
-	if (header_end != lines.end())
-	{
-		header_end++;
-		if (header_end != lines.end())
-		{
-			for (std::vector<std::string>::iterator it = header_end; it != this->lines.end(); it++)
-				this->body.push_back(*it);
-		}
-	}
-}
+// 	if (header_end != lines.end())
+// 	{
+// 		header_end++;
+// 		if (header_end != lines.end())
+// 		{
+// 			for (std::vector<std::string>::iterator it = header_end; it != this->lines.end(); it++)
+// 				this->body.push_back(*it);
+// 		}
+// 	}
+// }
 
 void	Request::printRequest(void) const
 {
