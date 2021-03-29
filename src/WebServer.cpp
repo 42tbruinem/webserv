@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 11:09:01 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/03/29 14:24:47 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,6 @@
 #include "Utilities.hpp"
 #include "Context.hpp"
 #include <exception>
-
-CleanExit::CleanExit(const char *what_arg, int exit_code) : std::runtime_error(what_arg), exit_code(exit_code) _GLIBCXX_TXN_SAFE{}
-CleanExit::~CleanExit() _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_USE_NOEXCEPT {}
 
 //-----------------------------------------------Constructors-----------------------------------------------
 
@@ -126,7 +123,7 @@ void	WebServer::closeSignal(int status)
 	this_copy->clients.clear();
 	this_copy->servers.clear();
 
-	throw CleanExit("Server stopped cleanly", status);
+	exit(status);
 }
 
 void	WebServer::readRequests(std::queue<int>& closed_clients)
