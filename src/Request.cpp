@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 19:13:28 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 16:18:19 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,29 @@
 #include "Utilities.hpp"
 #include "Method.hpp"
 
-Request::Request(std::string content, bool encoding) :
+//		Constructors
+
+Request::Request() :
 uri(""),
-content(content),
+content(),
 done(false),
 status_line(""),
 status_code(200),
 method(GET),
 body_read(0),
 body_total(-1),
-body_started(false),
-encoding(encoding) {}
+rawbody(""),
+end_of_headers(false),
+end_of_body(false),
+encoding(false)
+{}
 
-Request::Request(const Request& other) : uri(other.uri), method(other.method)
+Request::Request(const Request& other) : uri(""), method(GET)
 {
 	*this = other;
 }
+
+//		Operators
 
 Request& Request::operator = (const Request& other)
 {
@@ -49,31 +56,16 @@ Request& Request::operator = (const Request& other)
 		this->uri = other.uri;
 		this->body_read = other.body_read;
 		this->body_total = other.body_total;
-		this->body_started = other.body_started;
+		this->rawbody = other.rawbody;
+		this->end_of_body = other.end_of_body;
+		this->end_of_headers = other.end_of_headers;
 		this->encoding = other.encoding;
 		this->content = other.content;
 	}
 	return (*this);
 }
 
-bool	Request::isMethod(std::string str)
-{
-	static const char *methods[] = {
-	"OPTIONS",
-	"GET",
-	"HEAD",
-	"POST",
-	"PUT",
-	"DELETE",
-	"TRACE",
-	"CONNECT"
-	};
-
-	for (size_t i = 0; i < sizeof(methods) / sizeof(char *); i++)
-		if (std::string(methods[i]) == str)
-			return (true);
-	return (false);
-}
+//		Parsing
 
 bool	Request::parseHeader(std::string& line)
 {
@@ -119,48 +111,188 @@ bool	parseChunksIntoBody(std::vector<std::string> chunks, std::vector<std::strin
 	return (true);
 }
 
-// bool	Request::parseBody(std::vector<std::string>	body)
-// {
-// 	(void)body;
-// 	return (true);
-// }
+bool	containsHeader(std::string& bytes, std::string header_key, std::string& header_field)
+{
+	size_t	eol;
+	size_t	header;
+
+	header = bytes.find(header_key + std::string(": "));
+	if (header == std::string::npos)
+		return (false);
+	eol = bytes.find("\r\n", header);
+	if (eol == std::string::npos)
+		return (false);
+	header_field = bytes.substr(header, eol - header);
+	return (true);
+}
+
+//return:
+//-1 = error
+//0 = not found
+//1 = found
+int		Request::bodyEnd(std::string& bytes)
+{
+	ssize_t	end;
+
+	//if it contains Transfer-Encoding
+	if (encoding || this->headers.count("Transfer-Encoding"))
+	{
+		std::vector<std::string>			value;
+		std::string							to_search;
+		size_t								oldsize;
+
+		std::cout << "ENCODING FOUND" << std::endl;
+		if (!encoding)
+		{
+			value = ft::split(this->headers["Transfer-Encoding"], " ");
+			ft::printIteration(value.begin(), value.end());
+			if (value.empty() || value[value.size() - 1] != "chunked")
+				return (-1);
+			encoding = true;
+		}
+		if (rawbody.size() < 5)
+			to_search = rawbody;
+		else
+			to_search = rawbody.substr(rawbody.size() - 5, 5);
+		oldsize = to_search.size();
+		to_search += bytes;
+		end = to_search.find("0\r\n\r\n");
+		if ((size_t)end == std::string::npos)
+		{
+			rawbody += bytes;
+			std::cout << "RAWBODY: " << ft::rawString(rawbody) << std::endl;
+			bytes.clear();
+			return (0);
+		}
+		rawbody += bytes.substr(0, (end + 5) - oldsize);
+		bytes = bytes.substr((end + 5) - oldsize, bytes.size());
+		std::cout << "RAWBODY: " << ft::rawString(rawbody) << std::endl;
+		std::cout << "BYTES: " << ft::rawString(bytes) << std::endl;
+		return (true);
+	}
+	//need to check for duplicate Content-Length headerfields
+	//if it contains Content-Length
+	else if (!encoding && this->headers.count("Content-Length"))
+	{
+		std::vector<std::string>			value;
+		size_t								overflow;
+
+		//if we haven't calculated bodysize yet
+		if (!end_of_body)
+		{
+			value = ft::split(this->headers["Content-Length"], " ");
+			ft::printIteration(value.begin(), value.end());
+			if (value.size() != 1 || !ft::onlyConsistsOf(value[0], "0123456789"))
+				return (-1);
+			end_of_body = ft::stoul(value[0]);
+		}
+		//if we haven't reached bodysize yet
+		if (end_of_body >= rawbody.size() + bytes.size())
+		{
+			rawbody += bytes;
+			bytes.clear();
+		}
+		if (end_of_body > rawbody.size() + bytes.size())
+			return (0);
+		if (end_of_body == rawbody.size() + bytes.size())
+			return (1);
+		std::cout << "BYTES: " << ft::rawString(bytes) << std::endl;
+		overflow = end_of_body - (rawbody.size() + bytes.size());
+		rawbody += bytes.substr(0, overflow);
+		std::cout << overflow << std::endl;
+		bytes = bytes.substr(overflow, bytes.size());
+		return (1);
+	}
+	else
+		return (1);
+}
+
+//return:
+// -1 = error
+// 0 = not found
+// 1 = found
+int		Request::findEndOfRequest(std::string& buffer)
+{
+	std::string		to_search;
+	ssize_t			tmp = 0;
+	size_t			old_content_size;
+
+	//set out the area we're going to search
+	if (content.size() < 25)
+		to_search = content;
+	else
+		to_search = content.substr(content.size() - 25, content.size());
+	old_content_size = to_search.size();
+	to_search += buffer;
+
+	//if we haven't found the end of the headers yet
+	if (!end_of_headers && ((size_t)(tmp = to_search.find("\r\n\r\n")) != std::string::npos))
+	{
+		size_t		end_of_statusline;
+
+		end_of_headers = (this->content.size() + tmp) - old_content_size;
+		//add last part of headers to content
+		this->content += buffer.substr(0, tmp - old_content_size);
+		//remove everything that's part of headers
+		buffer = to_search.substr(tmp + 4, to_search.size());
+		to_search = buffer;
+		end_of_statusline = this->content.find("\r\n");
+		std::string	status_line = this->content.substr(0, end_of_statusline);
+		if (!parseStatusLine(status_line))
+			return (-1);
+
+		//parse headers
+		std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, (end_of_headers - (end_of_statusline + 2))), "\r\n");
+		for (size_t i = 0; i < headers.size(); i++)
+		{
+			if (!parseHeader(headers[i]))
+				return (-1);
+		}
+		std::cout << "FOUND END OF HEADERS" << std::endl;
+		//the request might not expect any body
+		content.clear(); //just processed
+	}
+	//find the end of the entire request
+	if (end_of_headers)
+	{
+		std::cout << "CHECKING IF BODY END IS FOUND:" << std::endl;
+		//if we've not found the end of the body yet
+		int ret;
+		ret = bodyEnd(to_search);
+		if (!ret)
+		{
+			buffer.clear();
+			return (0);
+		}
+		if (ret == -1)
+			return (-1);
+		buffer = to_search;
+		std::cout << "BODY END WAS FOUND:" << std::endl;
+//		std::cout << buffer << std::endl;
+		return (1);
+	}
+	else
+		return (0);
+}
 
 bool	Request::process()
 {
 	//might need to skip over empty lines at the start
 
-	if (this->content.size() >= 10 * MB)
-	{
-		int i = 0;
-		(void)i;
-	}
+	// if (this->content.size() >= 10 * MB)
+	// {
+	// 	int i = 0;
+	// 	(void)i;
+	// }
 	//parse status_line
-	size_t		end_of_statusline = this->content.find("\r\n");
-	std::string	status_line = this->content.substr(0, end_of_statusline);
-//	std::cerr << "STATUS_LINE: |" << status_line << "|" << std::endl;
-	if (!parseStatusLine(status_line))
-		return (false);
+	std::cout << "RAWBODY: " << ft::rawString(this->rawbody) << std::endl;
 
-	//parse headers
-	size_t		end_of_headers = this->content.find("\r\n\r\n");
-	std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, (end_of_headers - (end_of_statusline + 2))), "\r\n");
-	for (size_t i = 0; i < headers.size(); i++)
-	{
-		if (!parseHeader(headers[i]))
-			return (false);
-	}
-	this->body = ft::split(this->content.substr(end_of_headers + 4, this->content.size()), "\r\n");
+	this->body = ft::split(this->rawbody, "\r\n");
 	//parse chunks
 	if (encoding && !parseChunksIntoBody(this->body, this->body))
 		return (false);
-
-	//parse body
-	// if (!parseBody(body))
-	// 	return (false);
 	return (true);
 }
-
-Request::~Request() {}
 
 bool Request::isStatusLine(const std::string &line)
 {
@@ -249,193 +381,6 @@ bool Request::parseStatusLine(const std::string &line)
 	return (true);
 }
 
-// bool	Request::parseLine(std::string line)
-// {
-// 	if (line.empty())
-// 	{
-// 		if (this->status_line.empty())
-// 			return false;
-// 		else if (this->status_line.size() && this->lines.size() == 0)
-// 		{
-// 			this->status_code = 400;
-// 			return (true);
-// 		}
-// 		else if (this->status_line.size() && this->lines.size() > 0 && !this->encoding)
-// 		{
-// 			if (this->body_total != 0 && this->body_total > this->body_read)
-// 			{
-// 				if (this->body_started)
-// 				{
-// 					this->body_read += 2;
-// 					this->lines.push_back("\r\n");
-// 				}
-// 				else
-// 					this->lines.push_back("\r");
-// 				this->body_started = true;
-// 				return false;
-// 			}
-
-// 			int	end_pos_method = this->status_line.find(' ');
-// 			int start_pos_path = end_pos_method;
-
-// 			while (this->status_line[start_pos_path] == ' ')
-// 				start_pos_path++;
-
-// 			int end_pos_path = this->status_line.length() - 1;
-// 			while (this->status_line[end_pos_path] == ' ')
-// 				end_pos_path--;
-// 			end_pos_path -= 8;
-
-// 			while (this->status_line[end_pos_path] == ' ')
-// 				end_pos_path--;
-// 			end_pos_path++;
-
-// 			std::string methodpart = this->status_line.substr(0, end_pos_method);
-// 			if (isMethod(methodpart))
-// 				this->method = Method(methodpart);
-// 			else
-// 				this->status_code = 405;
-// 			this->path = this->status_line.substr(start_pos_path, end_pos_path - start_pos_path);
-// 			std::cout << "Request received to: " << this->path << std::endl;
-// 			this->uri = URI(path);
-// 			if (this->uri.getPort() == "" && this->uri.getScheme() == "HTTP")
-// 				this->uri.setPort("80");
-// 			this->splitRequest();
-
-// 			return (true);
-// 		}
-// 	}
-// 	else if (isStatusLine(line))
-// 	{
-// 		if (this->status_line == "")
-// 		{
-// 			int start = line.length() - 1;
-
-// 			while (line[start] == ' ' || (line[start] >= 10 && line[start] <= 13))
-// 				start--;
-
-// 			int end = start;
-
-// 			while (line[start] != ' ')
-// 				start--;
-
-// 			if (line.substr(start + 1, end - start) != "HTTP/1.1")
-// 			{
-// 				this->status_code = 505;
-// 				return (true);
-// 			}
-// 			this->status_line = line;
-// 		}
-// 		return (false);
-// 	}
-// 	else if (line.find(':') != std::string::npos && !this->body_started)
-// 	{
-// 		if (this->status_line == "")
-// 		{
-// 			this->status_code = 400;
-// 			return (true);
-// 		}
-// 		size_t carriage_return = line.find_last_of('\r');
-
-// 		if (line.size() >= 16 && line.substr(0, 16) == "Content-Length: ")
-// 		{
-// 			if (carriage_return != std::string::npos)
-// 				this->body_total = ft::stoi(line.substr(16, line.length() - 17));
-// 			else
-// 				this->body_total = ft::stoi(line.substr(16, line.length() - 16));
-// 		}
-// 		else if (line.size() >= 19 && line.substr(0, 19) == "Transfer-Encoding: ")
-// 			this->encoding = true;
-
-// 		if (carriage_return != std::string::npos && carriage_return + 1 == line.size())
-// 			this->lines.push_back(line.substr(0, line.size() - 1));
-// 		else
-// 			this->lines.push_back(line);
-// 		return (false);
-// 	}
-// 	if (this->status_line != "")
-// 	{
-// 		if (body_started)
-// 		{
-// 			//pleasefix
-// 			//useless check??
-// 			size_t carriage = line.find_last_of('\r');
-// 			if (carriage != std::string::npos && carriage + 1 == line.size())
-// 				line += "\n";
-// 			else
-// 				line += "\r\n";
-
-// 			std::string newLine = "";
-
-// 			for (int i = 0; line[i] != '\0'; i++)
-// 			{
-// 				newLine.push_back(line[i]);
-// 				this->body_read++;
-// 				if (this->body_read == this->body_total)
-// 					break;
-// 			}
-// 			if (this->encoding && this->lines.back() != "")
-// 				this->lines.back().append(newLine);
-// 			else
-// 				this->lines.push_back(newLine);
-
-// 			if (this->body_read >= this->body_total)
-// 			{
-// 				if (!this->encoding)
-// 					return (this->parseLine(""));
-// 				this->body_read = 0;
-// 				this->body_total = -1;
-// 				this->body_started = false;
-// 			}
-// 		}
-// 		else if (this->encoding)
-// 		{
-// 			if (this->body_total == -1 && line != "")
-// 			{
-// 				this->body_total = ft::stoi(ft::toUpperStr(line), "0123456789ABCDEF");
-// 				if (this->body_total == 0)
-// 					this->encoding = false;
-// 				else
-// 					this->body_started = true;
-// 			}
-// 			else if (line == "")
-// 				this->lines.push_back(line);
-// 		}
-// 		return (false);
-// 	}
-// 	this->status_code = 400;
-// 	return (true);
-// }
-
-// void Request::splitRequest(void) 
-// {
-
-// 	std::vector<std::string>::iterator	header_end;
-
-// 	for (header_end = this->lines.begin(); header_end != this->lines.end(); header_end++) {
-// 		if (*header_end == "\r" || *header_end == "")
-// 			break;
-// 	}
-
-// 	for (std::vector<std::string>::iterator it = this->lines.begin(); it != header_end; it++) {
-// 		if ((*it).find(": ") != std::string::npos)
-// 		{
-// 			std::pair<std::string, std::string>	keyval = ft::getKeyval(*it, ": ");
-// 			this->headers.insert(keyval);
-// 		}
-// 	}
-
-// 	if (header_end != lines.end())
-// 	{
-// 		header_end++;
-// 		if (header_end != lines.end())
-// 		{
-// 			for (std::vector<std::string>::iterator it = header_end; it != this->lines.end(); it++)
-// 				this->body.push_back(*it);
-// 		}
-// 	}
-// }
-
 void	Request::printRequest(void) const
 {
 	// Print values for debugging
@@ -463,9 +408,11 @@ void	Request::printRequest(void) const
 		std::cout << "  No body" << std::endl;
 }
 
-bool			Request::getDone() const { return this->done; }
-std::string		Request::getMethod() const { return this->method.getStr(); }
-std::string		Request::getPath() const { return this->path; }
-int				Request::getStatusCode() const { return this->status_code; }
-std::map<std::string, std::string>&	Request::getHeaders() { return this->headers; }
-std::vector<std::string>&	Request::getBody() { return this->body; }
+bool									Request::getDone() const { return this->done; }
+std::string								Request::getMethod() const { return this->method.getStr(); }
+std::string								Request::getPath() const { return this->path; }
+int										Request::getStatusCode() const { return this->status_code; }
+std::map<std::string, std::string>&		Request::getHeaders() { return this->headers; }
+std::vector<std::string>&				Request::getBody() { return this->body; }
+
+Request::~Request() {}

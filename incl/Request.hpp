@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/28 10:55:09 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 15:33:44 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 class Request : public Message
 {
 	public:
-		Request(std::string content, bool encoding);
+		Request();
 		~Request();
 
 		void			printRequest(void) const;
@@ -33,6 +33,9 @@ class Request : public Message
 		bool			parseLine(std::string line);
 		void			splitRequest(void);
 		bool			process();
+
+		int				bodyEnd(std::string& bytes);
+		int				findEndOfRequest(std::string& buffer);
 
 		bool								getDone(void) const;
 		std::string							getMethod(void) const;
@@ -45,8 +48,6 @@ class Request : public Message
 		Request& operator = (const Request& other);
 
 	private:
-		//move this to Method
-		bool						isMethod(std::string str);
 		std::string					content;
 		bool						done;
 		std::string 				status_line;
@@ -56,7 +57,10 @@ class Request : public Message
 		Method						method;
 		int							body_read;
 		int							body_total;
-		bool						body_started;
+		std::string					rawbody;
+
+		size_t						end_of_headers;
+		size_t						end_of_body;
 		bool						encoding;
 };
 

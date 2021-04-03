@@ -1,0 +1,31 @@
+Request:
+nested class Reader/Parser
+
+
+every Request has a Reader that's initialized with the Request
+internal static map of buffers (so the remainder of a later request dont get lost)
+
+throws exceptions specifying which error occurred
+caught in Client or Exchange?
+
+Reader is responsible for determining when a request is finished,
+and will save the remainder in its internal buffer
+
+------------------------------------------------------------------
+
+Parser (raw request type) <- serving as a Builder
+
+output	->	GET request
+	->	HEAD request (derived from Request, Safe and Cacheable)
+	->	PUT request
+	->	POST request
+
+
+Method	Safe	Idempotent	Effect
+GET		Yes		Yes			Resource Retrieval
+OPTIONS	Yes		Yes			Used by CORS
+HEAD	Yes		Yes			Retrieve only headers
+POST	No		No			Resource creation
+PUT		No		Yes			Resource replacement
+DELETE	No		Yes			Resource destruction
+PATCH	No		No			Append to a resource

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:32:14 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:54:49 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 12:07:53 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,7 @@ class	Method : public EnumString<e_method>
 		Method();
 		static const char * const names[];
 };
+
+bool	isMethod(std::string str);
 
 #endif

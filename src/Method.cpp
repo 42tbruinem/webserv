@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 20:24:09 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/25 16:00:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 12:08:09 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,3 +46,22 @@ Method&	Method::operator = (const Method& other)
 Method::~Method() {}
 
 Method::Method() : EnumString() {}
+
+bool	isMethod(std::string str)
+{
+	static const char *methods[] = {
+	"OPTIONS",
+	"GET",
+	"HEAD",
+	"POST",
+	"PUT",
+	"DELETE",
+	"TRACE",
+	"CONNECT"
+	};
+
+	for (size_t i = 0; i < sizeof(methods) / sizeof(char *); i++)
+		if (std::string(methods[i]) == str)
+			return (true);
+	return (false);
+}
