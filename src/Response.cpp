@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:23:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:48:22 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	Response::setSigpipe(int)
 }
 
 Response*	response_copy;
-void	Response::sendResponse(int fd)
+bool	Response::sendResponse(int fd)
 {
 	if (!this->size)
 	{
@@ -129,9 +129,9 @@ void	Response::sendResponse(int fd)
 	if (g_sigpipe)
 	{
 		response_copy->response_code = 400;
-		g_sigpipe = 0;
+		g_sigpipe = false;
 		this->finished = true;
-		return;
+		return (false);
 	}
 	this->send += ret;
 
@@ -140,6 +140,7 @@ void	Response::sendResponse(int fd)
 		std::cout << "Send Response of size: " << this->size << std::endl;
 		this->finished = true;
 	}
+	return (true);
 }
 
 void	Response::composeResponse(void)

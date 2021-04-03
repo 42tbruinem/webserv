@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 21:25:31 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:37:19 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Response : public Message
 		~Response();
 
 		static void	setSigpipe(int);
-		void	sendResponse(int fd);
+		bool	sendResponse(int fd);
 		void	composeResponse(void);
 		void	setRequest(Request& req);
 		int		getStatusCode() const;

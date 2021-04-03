@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:22:09 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:41:25 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ int		Request::bodyEnd(std::string& bytes)
 		if (!encoding)
 		{
 			value = ft::split(this->headers["Transfer-Encoding"], " ");
-			ft::printIteration(value.begin(), value.end());
+//			ft::printIteration(value.begin(), value.end());
 			if (value.empty() || value[value.size() - 1] != "chunked")
 				return (-1);
 			encoding = true;
@@ -166,7 +166,7 @@ int		Request::bodyEnd(std::string& bytes)
 		if (!end_of_body)
 		{
 			value = ft::split(this->headers["Content-Length"], " ");
-			ft::printIteration(value.begin(), value.end());
+//			ft::printIteration(value.begin(), value.end());
 			if (value.size() != 1 || !ft::onlyConsistsOf(value[0], "0123456789"))
 				return (-1);
 			end_of_body = ft::stoul(value[0]);

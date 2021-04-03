@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:23:45 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:57:15 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,24 +92,22 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 
 int		Client::send()
 {
-	int send = 0;
+	int responses_send = 0;
 
 	for (; this->responses.size(); )
 	{
 //		std::cout << "STARTING SEND RESPONSE" << std::endl;
 		Response& current_response = responses.front();
-		current_response.sendResponse(fd);
-		if (current_response.getFinished())
-		{
-			if (current_response.getStatusCode() != 400)
-				std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
-			responses.pop();
-		}
-		else
+		if (!current_response.sendResponse(fd))
+			return (-1);
+		if (!current_response.getFinished())
 			break ;
-		send++;
+		if (current_response.getStatusCode() != 400)
+			std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+		responses.pop();
+		responses_send++;
 	}
-	return (send);
+	return (responses_send);
 }
 
 int		Client::getFd()
