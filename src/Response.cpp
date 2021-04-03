@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/28 10:59:10 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:23:38 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,10 @@ void	Response::sendResponse(int fd)
 	this->send += ret;
 
 	if (this->send == this->size)
+	{
+		std::cout << "Send Response of size: " << this->size << std::endl;
 		this->finished = true;
+	}
 }
 
 void	Response::composeResponse(void)

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/29 14:24:47 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:29:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,24 +173,6 @@ void	WebServer::writeResponses(std::queue<int>& closed_clients)
 			ioset[SET_WRITE][fd] = CLEAR;
 			ioset[SET_READ][fd] = SET;
 		}
-		// Response& current_response = responses[fd].front();
-		// current_response.sendResponse(fd);
-		// if (current_response.getFinished())
-		// {
-		// 	if (current_response.getStatusCode() != 400)
-		// 		std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
-		// 	if (current_response.getStatusCode() == 400 || current_response.getStatusCode() == 505)
-		// 	{
-		// 		closed_clients.push(fd);
-		// 		continue ;
-		// 	}
-		// 	responses[fd].pop();
-		// 	if (responses[fd].empty())
-		// 	{
-		// 		ioset[SET_WRITE][fd] = CLEAR;
-		// 		ioset[SET_READ][fd] = SET;
-		// 	}
-		// }
 	}
 }
 

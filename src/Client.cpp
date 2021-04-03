@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 15:53:31 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/03 21:23:45 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,8 @@ bool	Client::createRequests(void)
 		return (false);
 	buffer[ret] = '\0';
 	bytes = std::string((char*)buffer, ret);
-//	std::cerr << "REQUEST HAS A SIZE OF " << bytes.size() << " SO FAR" << std::endl;
-	// if (bytes.size() > 10 * MB)
-	// 	(void)ret;
-//	std::cerr << ft::rawString(bytes) << std::endl;
 
+//	std::cout << "BYTES SIZE: " << bytes.size() << std::endl;
 	for (; bytes.size();)
 	{
 		int found;
@@ -82,7 +79,7 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 	{
 		if (!this->requests.front().process())
 			return (-1);
-		this->requests.front().printRequest();
+//		this->requests.front().printRequest();
 		this->responses.push(Response(this->requests.front()));
 		this->responses.back().setRequest(this->requests.front());
 		this->responses.back().locationMatch(server_names);
@@ -95,8 +92,11 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 
 int		Client::send()
 {
+	int send = 0;
+
 	for (; this->responses.size(); )
 	{
+//		std::cout << "STARTING SEND RESPONSE" << std::endl;
 		Response& current_response = responses.front();
 		current_response.sendResponse(fd);
 		if (current_response.getFinished())
@@ -107,8 +107,9 @@ int		Client::send()
 		}
 		else
 			break ;
+		send++;
 	}
-	return (1);
+	return (send);
 }
 
 int		Client::getFd()
