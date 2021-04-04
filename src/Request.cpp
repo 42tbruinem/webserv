@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 12:06:01 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 13:47:03 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,8 +147,9 @@ int		Request::bodyEnd(std::string& bytes)
 			bytes.clear();
 			return (0);
 		}
-		rawbody += bytes.substr(0, (end + 5) - oldsize);
-		bytes = bytes.substr((end + 5) - oldsize, bytes.size());
+		end += 5;
+		rawbody += bytes.substr(0, end - oldsize);
+		bytes = bytes.substr(end- oldsize, bytes.size());
 		return (true);
 	}
 	else if (!encoding && this->headers.count("Content-Length"))
@@ -203,15 +204,17 @@ int		Request::findEndOfRequest(std::string& buffer)
 	{
 		size_t		end_of_statusline;
 
+		tmp += 4;
 		end_of_headers = (this->content.size() + tmp) - old_content_size;
 		this->content += buffer.substr(0, tmp - old_content_size);
-		buffer = to_search.substr(tmp + 4, to_search.size());
+		buffer = to_search.substr(tmp, to_search.size());
 		to_search = buffer;
 		end_of_statusline = this->content.find("\r\n");
 		std::string	status_line = this->content.substr(0, end_of_statusline);
+		end_of_statusline += 2;
 		if (!parseStatusLine(status_line))
 			return (-1);
-		std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, (end_of_headers - (end_of_statusline + 2))), "\r\n");
+		std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline, (end_of_headers - end_of_statusline)), "\r\n");
 		for (size_t i = 0; i < headers.size(); i++)
 		{
 			if (!parseHeader(headers[i]))

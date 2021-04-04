@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/27 09:56:53 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 12:37:04 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 13:30:33 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,12 @@ class FDWrapper
 {
 	private:
 		fd_set&		set;
-		ssize_t&	nfd;
 		int			fd;
 		FDWrapper& operator = (const FDWrapper& other);
 	public:
 		FDWrapper(const FDWrapper& other);
 		~FDWrapper();
-		FDWrapper(fd_set& set, ssize_t& nfd, int fd);
+		FDWrapper(fd_set& set, int fd);
 		void	operator = (bool set);
 		operator bool();
 };
@@ -45,9 +44,8 @@ class FDSet
 {
 	private:
 		fd_set		set;
-		ssize_t&	nfd;
 	public:
-		FDSet(ssize_t& nfd);
+		FDSet();
 		FDWrapper operator [] (ssize_t fd);
 		~FDSet();
 		FDSet& operator = (const FDSet& other);
@@ -58,7 +56,6 @@ class FDSet
 class IOSet
 {
 	private:
-		ssize_t	nfd;
 		FDSet	read;
 		FDSet	write;
 		FDSet	except;

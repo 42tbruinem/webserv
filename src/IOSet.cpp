@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/03/27 10:19:45 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 12:23:33 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 13:31:53 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,26 +17,18 @@
 
 //-----------------------------------------------FDWrapper-----------------------------------------------
 
-FDWrapper::FDWrapper(fd_set& set, ssize_t& nfd, int fd) : set(set), nfd(nfd), fd(fd) {}
+FDWrapper::FDWrapper(fd_set& set, int fd) : set(set),fd(fd) {}
 
-FDWrapper::FDWrapper(const FDWrapper& other) : set(other.set), nfd(other.nfd), fd(other.fd) {}
+FDWrapper::FDWrapper(const FDWrapper& other) : set(other.set), fd(other.fd) {}
 
 FDWrapper::~FDWrapper() {}
 
 void	FDWrapper::operator = (bool set)
 {
 	if (set && !FD_ISSET(this->fd, &this->set))
-	{
 		FD_SET(this->fd, &this->set);
-		if (this->fd + 1 > this->nfd)
-			this->nfd = this->fd + 1;
-	}
 	else if (!set && FD_ISSET(this->fd, &this->set))
-	{
 		FD_CLR(this->fd, &this->set);
-		if (this->fd + 1 == this->nfd)
-			this->nfd--;
-	}
 }
 
 FDWrapper::operator bool()
@@ -46,12 +38,12 @@ FDWrapper::operator bool()
 
 //-----------------------------------------------FDSet-----------------------------------------------
 
-FDSet::FDSet(ssize_t& nfd) : set(), nfd(nfd)
+FDSet::FDSet()
 {
 	FD_ZERO(&this->set);
 }
 
-FDSet::FDSet(const FDSet& other) : set(other.set), nfd(other.nfd) {}
+FDSet::FDSet(const FDSet& other) : set(other.set) {}
 
 // only increase nfd, we cant be sure that this FDSet
 // is the reason that the nfd is high
@@ -60,8 +52,6 @@ FDSet& FDSet::operator = (const FDSet& other)
 {
 	if (this != &other)
 	{
-		if (other.nfd > this->nfd)
-			this->nfd = other.nfd;
 		this->set = other.set;
 	}
 	return (*this);
@@ -71,7 +61,7 @@ FDSet::~FDSet() {}
 
 FDWrapper FDSet::operator [] (ssize_t fd)
 {
-	return (FDWrapper(this->set, nfd, fd));
+	return (FDWrapper(this->set, fd));
 }
 
 FDSet::operator fd_set* ()
@@ -81,11 +71,11 @@ FDSet::operator fd_set* ()
 
 //-----------------------------------------------IOSet-----------------------------------------------
 
-IOSet::IOSet() : nfd(0), read(nfd), write(nfd), except(nfd) {}
+IOSet::IOSet() : read(), write(), except() {}
 
 IOSet::~IOSet() {}
 
-IOSet::IOSet(const IOSet& other) : nfd(other.nfd), read(nfd), write(nfd), except(nfd) {}
+IOSet::IOSet(const IOSet& other) : read(other.read), write(other.write), except(other.except) {}
 
 FDSet&	IOSet::operator [] (enum e_IOSET set)
 {
@@ -98,14 +88,13 @@ FDSet&	IOSet::operator [] (enum e_IOSET set)
 
 int	IOSet::select()
 {
-	return (::select(nfd, read, write, except, NULL));
+	return (::select(FD_SETSIZE, read, write, except, NULL));
 }
 
 IOSet& IOSet::operator = (const IOSet& other)
 {
 	if (this != &other)
 	{
-		this->nfd = other.nfd;
 		this->read = other.read;
 		this->write = other.write;
 		this->except = other.except;

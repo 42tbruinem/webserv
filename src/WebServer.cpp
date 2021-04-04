@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:29:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 13:31:04 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ Context(),
 servers(),
 clients(),
 ioset(),
-activity()
+activity(ioset)
 {
 	this->keywords.push_back("server");
 
