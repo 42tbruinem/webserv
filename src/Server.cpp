@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/27 11:30:38 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 14:42:29 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ bool	Server::init()
 	if (this->properties.ip_port.first == "localhost")
 		this->properties.ip_port.first = IP4_LOCALHOST_ADDRESS;
 	this->address.sin_addr.s_addr = (this->properties.ip_port.first == "0.0.0.0") ? INADDR_ANY : inet_addr(this->properties.ip_port.first.c_str());
-	this->address.sin_port = ft::hostToNetworkShort(ft::stoi(this->properties.ip_port.second));
+	this->address.sin_port = htons(ft::stoi(this->properties.ip_port.second));
 	ft::memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
 
 	// Attach socket to transport address

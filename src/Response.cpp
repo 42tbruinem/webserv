@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:48:22 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 15:07:54 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -365,11 +365,16 @@ void	Response::setServer(void)
 
 void	Response::setDate(void)
 {
-	struct tm 	tm = ft::getTime();
+	struct timeval	current_time;
+	struct tm		*time;
 	char		buf[64];
 
+	gettimeofday(&current_time, NULL);
+	time = localtime(&current_time.tv_sec);
+
 	ft::memset(buf, '\0', 64);
-	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
+	if (!strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time))
+		throw std::runtime_error("Error: string representation of time in setDate exceeds MAXSIZE");
 
 	this->headers["Date"] = std::string(buf);
 }
@@ -601,10 +606,11 @@ void	Response::listDirectory(void)
 			continue;
 		if (stat((this->path + *it).c_str(), &result) == 0)
 		{
-			struct tm 	tm = ft::getTime(result.st_mtime);
+			struct tm*	time;
 
+			time = localtime(&result.st_mtime);
 			ft::memset(buf, '\0', 64);
-			strftime(buf, sizeof(buf), "%d-%b-%Y %H:%M", &tm);
+			strftime(buf, sizeof(buf), "%d-%b-%Y %H:%M", time);
 
 			if ( result.st_mode & S_IFDIR )
 			{
@@ -830,11 +836,14 @@ void	Response::setLocation(void)
 	{
 		location += "/";
 		this->headers["Location"] = this->headers["Referer"] = location;
-		struct tm 	tm = ft::getTime();
+		struct timeval	current_time;
+		struct tm		*time;
 		char		buf[64];
 
+		gettimeofday(&current_time, NULL);
+		time = localtime(&current_time.tv_sec);
 		ft::memset(buf, '\0', 64);
-		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
+		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time);
 		this->headers["Retry-After"] = std::string(buf);
 	}
 	else
@@ -850,11 +859,11 @@ void	Response::setModified(void)
 
 	if (stat(this->path.c_str(), &result) == 0)
 	{
-		struct tm 	tm = ft::getTime(result.st_mtime);
+		struct tm 	*time = localtime(&result.st_mtime);
 		char		buf[64];
 
 		ft::memset(buf, '\0', 64);
-		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
+		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time);
 		this->headers["Last-Modified"] = std::string(buf);
 	}
 }

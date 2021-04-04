@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 13:31:04 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 14:35:12 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,13 +142,6 @@ void	WebServer::readRequests(std::queue<int>& closed_clients)
 			closed_clients.push(fd);
 		else if (ret)
 		{
-			// responses[fd].push(Response());
-			// Response &current_response = responses[fd].back();
-			// current_response.setRequest(requests[fd].front());
-			// current_response.locationMatch(this->server_names);
-			// current_response.composeResponse();
-			// requests[fd].pop();
-			// if (requests[fd].empty())
 			ioset[SET_READ][fd] = CLEAR;
 			ioset[SET_WRITE][fd] = SET;
 		}
