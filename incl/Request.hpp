@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 15:33:44 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 20:21:32 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include "URI.hpp"
 # include <string>
 # include <vector>
+
+//Read the request, processing it until it's done
 
 class Request : public Message
 {
@@ -57,8 +59,8 @@ class Request : public Message
 		Method						method;
 		int							body_read;
 		int							body_total;
-		std::string					rawbody;
 
+		std::string					rawbody;
 		size_t						end_of_headers;
 		size_t						end_of_body;
 		bool						encoding;

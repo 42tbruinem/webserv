@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:19:12 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 20:20:31 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@
 # include "StatusLine.hpp"
 
 class Server;
+
+//Creates/Gets the resource pointed to by Request
+//Wraps the representation of the resource in a HTTP response
+//Sends the response
 
 class Response : public Message
 {

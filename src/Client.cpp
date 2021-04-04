@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:40:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 20:29:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,13 @@
 #include <exception>
 #include "Response.hpp"
 
-Client::Client(Server* server) : server(server), current_request()
+Client::Client(Server* server) : current_request()
 {
+	socklen_t	addr_len;
+
 	memset(&this->address, '\0', sizeof(this->address));
-	this->addr_len = sizeof(this->address);
-	this->fd = accept(server->fd, (struct sockaddr*)&this->address, &this->addr_len);
+	addr_len = sizeof(this->address);
+	this->fd = accept(server->fd, (struct sockaddr*)&this->address, &addr_len);
 	if (this->fd == -1)
 		throw std::runtime_error("Error: failed to open a new client connection");
 	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)

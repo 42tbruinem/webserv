@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/04/04 18:02:41 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:32:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:43:10 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,6 @@ struct StatusLine
 
 		void				operator = (size_t code);
 		void				operator = (e_status_code_tier tier);
-		// bool				operator == (e_status_code_tier tier) const; //current code falls within this tier
-		// bool				operator != (e_status_code_tier tier) const; //current code does not fall within this tier
-		// bool				operator == (int code);
-		// bool				operator != (int code);
 		e_status_code_tier	tier(void) const;
 		operator size_t() const;
 		operator std::string(void) const;
