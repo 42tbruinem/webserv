@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:33:59 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:40:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ int		Client::send()
 		if (!current_response.getFinished())
 			break ;
 		if (current_response.status_line.tier() != ST_SUCCES)
-			std::cout << "[" << (size_t)current_response.status_line << "] Response send!" << std::endl;
+			std::cout << "[" << current_response.status_line << "] Response send!" << std::endl;
 		responses.pop();
 	}
 	return (!responses.size());

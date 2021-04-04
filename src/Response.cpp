@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:37:33 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:40:54 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,7 +293,7 @@ void	Response::handlePut(void)
 	close(fd);
 
 	// Check if file is directory
-	if ((size_t)this->status_line == 204)
+	if (this->status_line == 204)
 	{
 		struct stat	s;
 		if (stat(this->path.c_str(), &s) != 0)
@@ -344,7 +344,7 @@ void	Response::setDate(void)
 
 void	Response::setContentType()
 {
-	if ((size_t)this->status_line == 201 || (size_t)this->status_line == 204)
+	if (this->status_line == 201 || this->status_line == 204)
 		return;
 	if (this->status_line.tier() != ST_SUCCES || this->is_dir)
 	{
@@ -415,7 +415,7 @@ std::vector<std::string>	readFile(int fd, std::string eol_sequence)
 
 void	Response::setBody(void)
 {
-	if ((size_t)this->status_line == 201 || (size_t)this->status_line == 204)
+	if (this->status_line == 201 || this->status_line == 204)
 		return;
 	if (this->status_line.tier() != ST_SUCCES)
 	{
@@ -494,7 +494,7 @@ void	Response::setBodyError(void)
 	if (this->location_block)
 		error_pages = this->location_block->getProperties().error_pages;
 
-	if ((size_t)this->status_line == 405 && this->location_block)
+	if (this->status_line == 405 && this->location_block)
 	{
 		size_t i = 0;
 		const std::map<std::string, bool>&	accepted_methods = this->location_block->getProperties().accepted_methods;
@@ -633,7 +633,7 @@ void	Response::parseCgiHeaders(void)
 
 void	Response::setContentLen(void)
 {
-	if ((size_t)this->status_line != 204)
+	if (this->status_line != 204)
 		this->headers["Content-Length"] = this->getBodyLen();
 }
 
@@ -790,11 +790,11 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 
 void	Response::setLocation(void)
 {
-	if ((size_t)this->status_line != 301 && (size_t)this->status_line != 201)
+	if (this->status_line != 301 && this->status_line != 201)
 		return;
 
 	std::string location = "http://" + this->req.getHeader("Host") + this->req.getPath();
-	if ((size_t)this->status_line == 301)
+	if (this->status_line == 301)
 	{
 		location += "/";
 		this->headers["Location"] = this->headers["Referer"] = location;
