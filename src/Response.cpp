@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:22:29 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 17:55:18 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <cstring>
 
 #include "Response.hpp"
 #include "Utilities.hpp"
@@ -99,7 +100,6 @@ bool	Response::sendResponse(int fd)
 {
 	if (!this->size)
 	{
-		g_sigpipe = false;
 		this->response.append(this->status_line + "\r\n");
 
 		for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++)
@@ -370,7 +370,7 @@ void	Response::setDate(void)
 	gettimeofday(&current_time, NULL);
 	time = localtime(&current_time.tv_sec);
 
-	ft::memset(buf, '\0', 64);
+	memset(buf, '\0', 64);
 	if (!strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time))
 		throw std::runtime_error("Error: string representation of time in setDate exceeds MAXSIZE");
 
@@ -607,7 +607,7 @@ void	Response::listDirectory(void)
 			struct tm*	time;
 
 			time = localtime(&result.st_mtime);
-			ft::memset(buf, '\0', 64);
+			memset(buf, '\0', 64);
 			strftime(buf, sizeof(buf), "%d-%b-%Y %H:%M", time);
 
 			if ( result.st_mode & S_IFDIR )
@@ -840,7 +840,7 @@ void	Response::setLocation(void)
 
 		gettimeofday(&current_time, NULL);
 		time = localtime(&current_time.tv_sec);
-		ft::memset(buf, '\0', 64);
+		memset(buf, '\0', 64);
 		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time);
 		this->headers["Retry-After"] = std::string(buf);
 	}
@@ -860,7 +860,7 @@ void	Response::setModified(void)
 		struct tm 	*time = localtime(&result.st_mtime);
 		char		buf[64];
 
-		ft::memset(buf, '\0', 64);
+		memset(buf, '\0', 64);
 		strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", time);
 		this->headers["Last-Modified"] = std::string(buf);
 	}

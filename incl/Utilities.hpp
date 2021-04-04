@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:17:24 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 17:54:39 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,6 @@ namespace ft
 		if (!distance)
 			std::cout << std::endl;
 	}
-
-	void	memset(void *b, int c, size_t len);
 
 	char			*strdup(const char *s1);
 

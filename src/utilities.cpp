@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:29:21 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:08:10 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 17:53:54 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <exception>
 #include "Utilities.hpp"
 #include <arpa/inet.h>
+#include <cstring>
 
 bool	g_sigpipe;
 
@@ -152,24 +153,16 @@ namespace ft
 		return (tokens);
 	}
 
-	void	memset(void *b, int c, size_t len)
-	{
-		std::fill((unsigned char*)b, (unsigned char*)b + len, c);
-	}
-
 	char	*strdup(const char *str)
 	{
 		char	*dup;
 		size_t	i = 0;
 
-		while (str[i])
-			i++;
+		i = strlen(str);
 		dup = (char*)malloc(sizeof(char) * (i + 1));
 		if (dup == NULL)
 			return (NULL);
-		for (size_t j = 0; j < i; j++)
-			dup[j] = str[j];
-		dup[i] = '\0';
+		memcpy(dup, str, sizeof(char) * (i + 1));
 		return (dup);
 	}
 

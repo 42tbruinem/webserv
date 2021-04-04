@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:17:07 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 17:54:08 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 Client::Client(Server* server) : server(server), current_request()
 {
-	ft::memset(&this->address, '\0', sizeof(this->address));
+	memset(&this->address, '\0', sizeof(this->address));
 	this->addr_len = sizeof(this->address);
 	this->fd = accept(server->fd, (struct sockaddr*)&this->address, &this->addr_len);
 	if (this->fd == -1)

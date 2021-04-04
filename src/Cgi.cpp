@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/17 13:59:06 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/25 17:54:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 17:55:01 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,11 @@
 
 #include "Cgi.hpp"
 #include "Utilities.hpp"
+#include <cstring>
 
 Cgi::Cgi() 
 {
-	ft::memset(this->args, 0, sizeof(args));
+	memset(this->args, 0, sizeof(args));
 }
 
 Cgi::Cgi(const Cgi & src)
