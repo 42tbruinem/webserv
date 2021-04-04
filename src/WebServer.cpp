@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 14:35:12 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 15:21:02 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,16 +113,9 @@ void	WebServer::addNewClients()
 	}
 }
 
-WebServer*	this_copy;
 void	WebServer::closeSignal(int status)
 {
 	std::cout << "Received stop signal" << std::endl;
-
-	for (std::map<int, Client*>::iterator it = this_copy->clients.begin(); it != this_copy->clients.end(); it++)
-		delete it->second;
-	this_copy->clients.clear();
-	this_copy->servers.clear();
-
 	exit(status);
 }
 
@@ -173,7 +166,6 @@ void	WebServer::run()
 {
 	std::queue<int>		closed_clients;
 
-	this_copy = this;
 	signal(SIGINT, WebServer::closeSignal);
 	signal(SIGPIPE, Response::setSigpipe);
 
@@ -185,7 +177,7 @@ void	WebServer::run()
 		this->addNewClients();
 		this->writeResponses(closed_clients);
 		this->readRequests(closed_clients);
-		for (size_t i = 0; i < closed_clients.size(); i++)
+		while (closed_clients.size())
 		{
 			this->deleteClient(closed_clients.front());
 			closed_clients.pop();

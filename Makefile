@@ -6,7 +6,7 @@
 #    By: novan-ve <marvin@codam.nl>                   +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/02/01 20:11:54 by novan-ve      #+#    #+#                  #
-#    Updated: 2021/03/27 22:29:56 by tbruinem      ########   odam.nl          #
+#    Updated: 2021/04/04 15:11:58 by tbruinem      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,6 @@ SRC =	main.cpp \
 		Cgi.cpp \
 		Request.cpp \
 		Response.cpp \
-		getLines.cpp \
 		Message.cpp
 
 OBJ := $(SRC:%.cpp=./obj/%.o)

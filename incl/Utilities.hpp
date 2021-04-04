@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 21:38:40 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:08:15 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 15:17:24 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,11 @@ namespace ft
 	int stoi(std::string number, const std::string base = "0123456789");
 	size_t stoul(std::string number, const std::string base = "0123456789");
 
-	template <class T>
-	T	max(T a, T b)
-	{
-		return ((a > b) ? a : b);
-	}
-
 	template <class Iter>
 	void	printIteration(Iter first, Iter last, std::string delim = ",")
 	{
 		size_t distance = std::distance(first, last);
-		for (; first != last;)
+		while (first != last)
 			std::cout << *first << ((++first == last) ? "\n" : delim);
 		if (!distance)
 			std::cout << std::endl;
@@ -69,7 +63,6 @@ namespace ft
 
 	std::string	rawString(std::string const &str);
 
-	std::vector<std::string>	getLines(int fd, std::string eol_sequence = "\n", int *ret = NULL, bool encoding = false, size_t max_lines = std::numeric_limits<size_t>::max());
 	std::pair<std::string, std::string>	getKeyval(std::string raw, std::string delimiter = ": ");
 
 	size_t	firstOfGroup(std::string raw, const std::vector<std::string>& delim_groups, size_t search_start, int& match);

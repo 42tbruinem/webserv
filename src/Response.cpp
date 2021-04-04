@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:07:54 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 15:22:29 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,12 +95,10 @@ void	Response::setSigpipe(int)
 	g_sigpipe = true;
 }
 
-Response*	response_copy;
 bool	Response::sendResponse(int fd)
 {
 	if (!this->size)
 	{
-		response_copy = this;
 		g_sigpipe = false;
 		this->response.append(this->status_line + "\r\n");
 
@@ -128,7 +126,7 @@ bool	Response::sendResponse(int fd)
 		throw std::runtime_error("Error: Could not send request to the client");
 	if (g_sigpipe)
 	{
-		response_copy->response_code = 400;
+		this->response_code = 400;
 		g_sigpipe = false;
 		this->finished = true;
 		return (false);

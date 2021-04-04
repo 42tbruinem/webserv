@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 14:01:28 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 15:17:07 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ bool	Client::createRequests(void)
 	buffer[ret] = '\0';
 	bytes = std::string((char*)buffer, ret);
 
-	for (; bytes.size();)
+	while (bytes.size())
 	{
 		int found;
 
@@ -73,15 +73,15 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 
 	if (!createRequests())
 		return (-1);
-	for (; this->requests.size();)
+	while (requests.size())
 	{
-		if (!this->requests.front().process())
+		if (!requests.front().process())
 			return (-1);
-		this->responses.push(Response(this->requests.front()));
-		this->responses.back().setRequest(this->requests.front());
-		this->responses.back().locationMatch(server_names);
-		this->responses.back().composeResponse();
-		this->requests.pop();
+		responses.push(Response(requests.front()));
+		responses.back().setRequest(requests.front());
+		responses.back().locationMatch(server_names);
+		responses.back().composeResponse();
+		requests.pop();
 		requests_finished++;
 	}
 	return (requests_finished);
@@ -89,7 +89,7 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 
 int		Client::send()
 {
-	for (; this->responses.size(); )
+	while (responses.size())
 	{
 		Response& current_response = responses.front();
 		if (!current_response.sendResponse(fd))
@@ -100,7 +100,7 @@ int		Client::send()
 			std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
 		responses.pop();
 	}
-	return (!this->responses.size());
+	return (!responses.size());
 }
 
 int		Client::getFd()
