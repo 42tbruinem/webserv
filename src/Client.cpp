@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:57:15 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 12:08:22 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,22 +31,20 @@ Client::Client(Server* server) : server(server), current_request()
 		throw std::runtime_error("Error: Could not set client-socket to O_NONBLOCK");
 }
 
-//read once, split into requests, save remainder into remainder
-//return false if error occurred
 bool	Client::createRequests(void)
 {
 	char		buffer[PIPE_CAPACITY_MAX + 1];
 	ssize_t		ret;
 	std::string	bytes;
 
-	//read new portion of request
 	ret = read(this->fd, buffer, PIPE_CAPACITY_MAX);
-	if (ret == -1)
+	if (ret == -1 && g_sigpipe)
 		return (false);
+	if (ret == -1)
+		throw std::runtime_error("Error: failed to read from client");
 	buffer[ret] = '\0';
 	bytes = std::string((char*)buffer, ret);
 
-//	std::cout << "BYTES SIZE: " << bytes.size() << std::endl;
 	for (; bytes.size();)
 	{
 		int found;
@@ -79,7 +77,6 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 	{
 		if (!this->requests.front().process())
 			return (-1);
-//		this->requests.front().printRequest();
 		this->responses.push(Response(this->requests.front()));
 		this->responses.back().setRequest(this->requests.front());
 		this->responses.back().locationMatch(server_names);
@@ -96,7 +93,6 @@ int		Client::send()
 
 	for (; this->responses.size(); )
 	{
-//		std::cout << "STARTING SEND RESPONSE" << std::endl;
 		Response& current_response = responses.front();
 		if (!current_response.sendResponse(fd))
 			return (-1);

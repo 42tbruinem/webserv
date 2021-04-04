@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:41:25 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 12:06:01 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ bool	Request::parseHeader(std::string& line)
 	std::pair<std::string, std::string>	keyval;
 
 	keyval = ft::getKeyval(line);
+	if (this->headers.count(keyval.first))
+		return (false);
 	this->headers[keyval.first] = keyval.second;
 	return (true);
 }
@@ -119,18 +121,15 @@ int		Request::bodyEnd(std::string& bytes)
 {
 	ssize_t	end;
 
-	//if it contains Transfer-Encoding
 	if (encoding || this->headers.count("Transfer-Encoding"))
 	{
 		std::vector<std::string>			value;
 		std::string							to_search;
 		size_t								oldsize;
 
-//		std::cout << "ENCODING FOUND" << std::endl;
 		if (!encoding)
 		{
 			value = ft::split(this->headers["Transfer-Encoding"], " ");
-//			ft::printIteration(value.begin(), value.end());
 			if (value.empty() || value[value.size() - 1] != "chunked")
 				return (-1);
 			encoding = true;
@@ -145,33 +144,25 @@ int		Request::bodyEnd(std::string& bytes)
 		if ((size_t)end == std::string::npos)
 		{
 			rawbody += bytes;
-//			std::cout << "RAWBODY: " << ft::rawString(rawbody) << std::endl;
 			bytes.clear();
 			return (0);
 		}
 		rawbody += bytes.substr(0, (end + 5) - oldsize);
 		bytes = bytes.substr((end + 5) - oldsize, bytes.size());
-//		std::cout << "RAWBODY: " << ft::rawString(rawbody) << std::endl;
-//		std::cout << "BYTES: " << ft::rawString(bytes) << std::endl;
 		return (true);
 	}
-	//need to check for duplicate Content-Length headerfields
-	//if it contains Content-Length
 	else if (!encoding && this->headers.count("Content-Length"))
 	{
 		std::vector<std::string>			value;
 		size_t								overflow;
 
-		//if we haven't calculated bodysize yet
 		if (!end_of_body)
 		{
 			value = ft::split(this->headers["Content-Length"], " ");
-//			ft::printIteration(value.begin(), value.end());
 			if (value.size() != 1 || !ft::onlyConsistsOf(value[0], "0123456789"))
 				return (-1);
 			end_of_body = ft::stoul(value[0]);
 		}
-		//if we haven't reached bodysize yet
 		if (end_of_body >= rawbody.size() + bytes.size())
 		{
 			rawbody += bytes;
@@ -181,7 +172,6 @@ int		Request::bodyEnd(std::string& bytes)
 			return (0);
 		if (end_of_body == rawbody.size() + bytes.size())
 			return (1);
-//		std::cout << "BYTES: " << ft::rawString(bytes) << std::endl;
 		overflow = end_of_body - (rawbody.size() + bytes.size());
 		rawbody += bytes.substr(0, overflow);
 		std::cout << overflow << std::endl;
@@ -202,7 +192,6 @@ int		Request::findEndOfRequest(std::string& buffer)
 	ssize_t			tmp = 0;
 	size_t			old_content_size;
 
-	//set out the area we're going to search
 	if (content.size() < 25)
 		to_search = content;
 	else
@@ -210,35 +199,25 @@ int		Request::findEndOfRequest(std::string& buffer)
 	old_content_size = to_search.size();
 	to_search += buffer;
 
-	//if we haven't found the end of the headers yet
-//	std::cout << "END_OF_HEADERS: " << end_of_headers << std::endl;
-//	std::cout << ft::rawString(to_search) << std::endl;
 	if (!end_of_headers && ((size_t)(tmp = to_search.find("\r\n\r\n")) != std::string::npos))
 	{
-//		std::cout << "FOUND CRLF CRLF" << std::endl;
 		size_t		end_of_statusline;
 
 		end_of_headers = (this->content.size() + tmp) - old_content_size;
-		//add last part of headers to content
 		this->content += buffer.substr(0, tmp - old_content_size);
-		//remove everything that's part of headers
 		buffer = to_search.substr(tmp + 4, to_search.size());
 		to_search = buffer;
 		end_of_statusline = this->content.find("\r\n");
 		std::string	status_line = this->content.substr(0, end_of_statusline);
 		if (!parseStatusLine(status_line))
 			return (-1);
-
-		//parse headers
 		std::vector<std::string>	headers = ft::split(this->content.substr(end_of_statusline + 2, (end_of_headers - (end_of_statusline + 2))), "\r\n");
 		for (size_t i = 0; i < headers.size(); i++)
 		{
 			if (!parseHeader(headers[i]))
 				return (-1);
 		}
-//		std::cout << "FOUND END OF HEADERS" << std::endl;
-		//the request might not expect any body
-		content.clear(); //just processed
+		content.clear();
 	}
 	else if (!end_of_headers)
 	{
@@ -246,11 +225,8 @@ int		Request::findEndOfRequest(std::string& buffer)
 		buffer.clear();
 		return (0);
 	}
-	//find the end of the entire request
 	if (end_of_headers)
 	{
-//		std::cout << "CHECKING IF BODY END IS FOUND:" << std::endl;
-		//if we've not found the end of the body yet
 		int ret;
 		ret = bodyEnd(to_search);
 		if (ret <= 0)
@@ -259,8 +235,6 @@ int		Request::findEndOfRequest(std::string& buffer)
 			return (ret);
 		}
 		buffer = to_search;
-//		std::cout << "BODY END WAS FOUND:" << std::endl;
-//		std::cout << buffer << std::endl;
 		return (1);
 	}
 	return (1);
@@ -269,14 +243,6 @@ int		Request::findEndOfRequest(std::string& buffer)
 bool	Request::process()
 {
 	//might need to skip over empty lines at the start
-
-	// if (this->content.size() >= 10 * MB)
-	// {
-	// 	int i = 0;
-	// 	(void)i;
-	// }
-	//parse status_line
-	//std::cout << "RAWBODY: " << ft::rawString(this->rawbody) << std::endl;
 
 	this->body = ft::split(this->rawbody, "\r\n");
 	//parse chunks
