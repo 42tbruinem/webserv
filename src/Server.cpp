@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 17:54:31 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 22:00:17 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,13 @@ Server::Server(Context& parent) : Context(parent)
 
 Server::~Server()
 {
-	close(this->fd);
+	if (this->fd != -1 && close(this->fd) == -1)
+		throw std::runtime_error("Error: close returned an error in ~Server");
 }
 
 //Utils
+
+//TODO move to Socket
 
 bool	Server::init()
 {
@@ -69,17 +72,21 @@ bool	Server::init()
 	this->address.sin_port = htons(ft::stoi(this->properties.ip_port.second));
 	memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
 
+	//Set the resulting socketfd to be non blocking
+	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
+		throw std::runtime_error("Error: Could not set server-socket to O_NONBLOCK");
 	// Attach socket to transport address
 	if (bind(this->fd, reinterpret_cast<struct sockaddr*>(&this->address), sizeof( this->address )) == -1)
+	{
+		close(this->fd);
+		this->fd = -1;
 		return false;
+	}
 
 	if (listen(this->fd, MAX_CONNECTIONS) == -1)
 		throw std::runtime_error("Error: could not set server-socket to listening mode");
 	std::cout << "Server created!" << std::endl << std::endl;
 
-	//Set the resulting socketfd to be non blocking
-	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
-		throw std::runtime_error("Error: Could not set server-socket to O_NONBLOCK");
 
 	return true;
 }

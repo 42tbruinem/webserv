@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 20:29:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 22:39:13 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <queue>
 #include <exception>
 #include "Response.hpp"
+
+//TODO move to Socket
 
 Client::Client(Server* server) : current_request()
 {

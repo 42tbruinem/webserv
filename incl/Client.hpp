@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 15:24:51 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 20:30:22 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 20:32:28 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@
 #include <queue>
 #include <map>
 
-//Keep track of requests and responses
+//Keep track of requests and responses, receiving and sending
+
+//TODO create Socket class
 
 class Client
 {
