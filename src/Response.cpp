@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 17:55:18 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:37:33 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,39 +27,13 @@
 #include "Properties.hpp"
 #include "Cgi.hpp"
 
-Response::Response(Request& req) : req(req), server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false)
-{
-	this->response_code = req.getStatusCode();
-	this->status_codes[200] = "200 OK";
-	this->status_codes[201] = "201 Created";
-	this->status_codes[204] = "204 No Content";
-	this->status_codes[301] = "301 Moved Permanently";
-	this->status_codes[400] = "400 Bad Request";
-	this->status_codes[401] = "401 Unauthorized";
-	this->status_codes[403] = "403 Forbidden";
-	this->status_codes[404] = "404 Not Found";
-	this->status_codes[405] = "405 Method Not Allowed";
-	this->status_codes[409] = "409 Conflict";
-	this->status_codes[413] = "413 Payload Too Large";
-	this->status_codes[500] = "500 Internal Server Error";
-	this->status_codes[505] = "505 HTTP Version Not Supported";
-}
+//TODO replace getStatusCode with a RequestLine in Request
 
-Response::Response(const Response& other) : req(other.req)
+Response::Response(Request& req) :  status_line(req.getStatusCode()), req(req), server_name(""), location_block(NULL), is_dir(false), root(""), location_key(""), response(""), size(0), send(0), finished(false) {}
+
+Response::Response(const Response& other) : status_line(other.req.getStatusCode()), req(other.req) 
 {
 	*this = other;
-	this->response_code = req.getStatusCode();
-}
-
-void	Response::setRequest(Request& req)
-{
-	this->req = req;
-	this->response_code = req.getStatusCode();
-}
-
-int		Response::getStatusCode() const
-{
-	return (this->response_code);
 }
 
 Response& Response::operator = (const Response& other)
@@ -68,8 +42,6 @@ Response& Response::operator = (const Response& other)
 	{
 		this->req = other.req;
 		this->status_line = other.status_line;
-		this->response_code = other.response_code;
-		this->status_codes = other.status_codes;
 		this->location_block = other.location_block;
 		this->is_dir = other.is_dir;
 		this->server_name = other.server_name;
@@ -100,7 +72,7 @@ bool	Response::sendResponse(int fd)
 {
 	if (!this->size)
 	{
-		this->response.append(this->status_line + "\r\n");
+		this->response.append((std::string)this->status_line + "\r\n");
 
 		for (std::map<std::string, std::string>::const_iterator it = this->headers.begin(); it != this->headers.end(); it++)
 			this->response.append(it->first + ": " + it->second + "\r\n");
@@ -126,7 +98,7 @@ bool	Response::sendResponse(int fd)
 		throw std::runtime_error("Error: Could not send request to the client");
 	if (g_sigpipe)
 	{
-		this->response_code = 400;
+		this->status_line = 400;
 		g_sigpipe = false;
 		this->finished = true;
 		return (false);
@@ -145,7 +117,7 @@ void	Response::composeResponse(void)
 {
 	if (!this->checkAuthorization())
 	{
-		this->response_code = 401;
+		this->status_line = 401;
 		this->headers["WWW-Authenticate"] = "Basic realm=\"";
 		if (this->location_block)
 			this->headers["WWW-Authenticate"] += this->location_block->getProperties().auth.realm + "\"";
@@ -153,7 +125,6 @@ void	Response::composeResponse(void)
 	this->checkMethod();
 	this->checkPath();
 	this->handlePut();
-	this->setStatusLine();
 	this->setServer();
 	this->setDate();
 	this->setContentType();
@@ -184,7 +155,7 @@ bool	Response::checkAuthorization(void)
 
 void	Response::checkMethod(void)
 {
-	if (this->response_code != 200)
+	if (this->status_line.tier() != ST_SUCCES)
 		return;
 
 	std::map<std::string, bool>	accepted_methods;
@@ -193,7 +164,7 @@ void	Response::checkMethod(void)
 
 	if (accepted_methods.count(this->req.getMethod()) && accepted_methods[this->req.getMethod()])
 		return ;
-	this->response_code = 405;
+	this->status_line = 405;
 }
 
 void	Response::checkPath(void)
@@ -212,12 +183,12 @@ void	Response::checkPath(void)
 
 	if (this->req.getHeaders().count("Accept-Charsets") && this->req.getHeaders()["Accept-Charsets"].find("utf-8") == std::string::npos &&
 		this->req.getHeaders()["Accept-Charsets"].find("*") == std::string::npos)
-		this->response_code = 400;
+		this->status_line = 400;
 
 	if (this->req.getHeaders().count("User-Agent") && this->req.getHeaders()["User-Agent"].find("/") == std::string::npos)
-		this->response_code = 400;
+		this->status_line = 400;
 
-	if (this->response_code != 200 || (this->req.getMethod() == "PUT" && (this->req.getHeaders().count("Content-Length") ||
+	if (this->status_line.tier() != ST_SUCCES || (this->req.getMethod() == "PUT" && (this->req.getHeaders().count("Content-Length") ||
 		this->req.getHeaders().count("Transfer-Encoding"))))
 		return;
 
@@ -230,7 +201,7 @@ void	Response::checkPath(void)
 	int fd = open(this->path.c_str(), O_RDONLY);
 	if (fd == -1)
 	{
-		this->response_code = 404;
+		this->status_line = 404;
 		return;
 	}
 	close(fd);
@@ -270,10 +241,10 @@ void	Response::checkPath(void)
 			{
 				this->is_dir = true;
 				if (this->path[this->path.length() - 1] != '/')
-					this->response_code = 301;
+					this->status_line = 301;
 			}
 			else
-				this->response_code = 404;
+				this->status_line = 404;
 		}
 	}
 	else
@@ -282,15 +253,15 @@ void	Response::checkPath(void)
 
 void	Response::handlePut(void)
 {
-	if (!(this->response_code == 404 && this->req.getMethod() == "POST" && this->location_block->getProperties().php_cgi.empty()) &&
-		(this->response_code != 200 || this->req.getMethod() != "PUT" ||
+	if (!(this->status_line.tier() == ST_CLIENT_ERROR && this->req.getMethod() == "POST" && this->location_block->getProperties().php_cgi.empty()) &&
+		(this->status_line.tier() != ST_SUCCES || this->req.getMethod() != "PUT" ||
 		 (!this->req.getHeaders().count("Content-Length") && !this->req.getHeaders().count("Transfer-Encoding"))))
 		return;
 
 	// Check if requested path is a directory
 	if (this->path[this->path.length() - 1] == '/')
 	{
-		this->response_code = 409;
+		this->status_line = 409;
 		return;
 	}
 
@@ -298,7 +269,7 @@ void	Response::handlePut(void)
 	int fd = open((this->path.substr(0, this->path.find_last_of('/'))).c_str(), O_RDONLY);
 	if (fd == -1)
 	{
-		this->response_code = 404;
+		this->status_line = 404;
 		return;
 	}
 	close(fd);
@@ -309,26 +280,26 @@ void	Response::handlePut(void)
 		bodylen += (*it).size();
 	if (bodylen > this->location_block->getProperties().client_max_body_size)
 	{
-		this->response_code = 413;
+		this->status_line = 413;
 		return;
 	}
 
 	// Check if file exists
 	fd = open(this->path.c_str(), O_RDONLY);
 	if (fd == -1)
-		this->response_code = 201;
+		this->status_line = 201;
 	else
-		this->response_code = 204;
+		this->status_line = 204;
 	close(fd);
 
 	// Check if file is directory
-	if (this->response_code == 204)
+	if ((size_t)this->status_line == 204)
 	{
 		struct stat	s;
 		if (stat(this->path.c_str(), &s) != 0)
 			throw std::runtime_error("Error: stat failed in Response::handlePut");
 		if (s.st_mode & S_IFDIR) {
-			this->response_code = 409;
+			this->status_line = 409;
 			return;
 		}
 	}
@@ -336,24 +307,18 @@ void	Response::handlePut(void)
 	fd = open(this->path.c_str(), O_TRUNC | O_CREAT | O_WRONLY, 0644);
 	if (fd == -1)
 	{
-		this->response_code = 403;
+		this->status_line = 403;
 		return;
 	}
 	for (std::vector<std::string>::iterator it = req.getBody().begin(); it != req.getBody().end(); it++)
 	{
 		if ((write(fd, (*it).c_str(), (*it).length())) == -1)
 		{
-			this->response_code = 500;
+			this->status_line = 500;
 			break;
 		}
 	}
 	close(fd);
-}
-
-void	Response::setStatusLine(void)
-{
-	this->status_line.append("HTTP/1.1 ");
-	this->status_line.append(this->status_codes[this->response_code]);
 }
 
 void	Response::setServer(void)
@@ -365,7 +330,7 @@ void	Response::setDate(void)
 {
 	struct timeval	current_time;
 	struct tm		*time;
-	char		buf[64];
+	char			buf[64];
 
 	gettimeofday(&current_time, NULL);
 	time = localtime(&current_time.tv_sec);
@@ -379,9 +344,9 @@ void	Response::setDate(void)
 
 void	Response::setContentType()
 {
-	if (this->response_code == 201 || this->response_code == 204)
+	if ((size_t)this->status_line == 201 || (size_t)this->status_line == 204)
 		return;
-	if (this->response_code != 200 || this->is_dir)
+	if (this->status_line.tier() != ST_SUCCES || this->is_dir)
 	{
 		this->headers["Content-Type"] = "text/html";
 		return;
@@ -450,9 +415,9 @@ std::vector<std::string>	readFile(int fd, std::string eol_sequence)
 
 void	Response::setBody(void)
 {
-	if (this->response_code == 201 || this->response_code == 204)
+	if ((size_t)this->status_line == 201 || (size_t)this->status_line == 204)
 		return;
-	if (this->response_code != 200)
+	if (this->status_line.tier() != ST_SUCCES)
 	{
 		this->setBodyError();
 		return;
@@ -516,11 +481,9 @@ void	Response::setBody(void)
 		body_size += this->body[i].size();
 	if (this->location_block && body_size > this->location_block->getProperties().client_max_body_size)
 	{
-		this->response_code = 413;
+		this->status_line = 413;
 		this->body.clear();
 		this->setBodyError();
-		this->status_line.clear();
-		this->setStatusLine();
 	}
 }
 
@@ -531,7 +494,7 @@ void	Response::setBodyError(void)
 	if (this->location_block)
 		error_pages = this->location_block->getProperties().error_pages;
 
-	if (this->response_code == 405 && this->location_block)
+	if ((size_t)this->status_line == 405 && this->location_block)
 	{
 		size_t i = 0;
 		const std::map<std::string, bool>&	accepted_methods = this->location_block->getProperties().accepted_methods;
@@ -546,10 +509,10 @@ void	Response::setBodyError(void)
 			}
 		}
 	}
-	if (error_pages.count(this->response_code))
+	if (error_pages.count(this->status_line))
 	{
 
-		std::string errorpage = this->root + error_pages[this->response_code];
+		std::string errorpage = this->root + error_pages[this->status_line];
 
 		int fd = open(errorpage.c_str(), O_RDONLY);
 		if (fd != -1)
@@ -559,12 +522,13 @@ void	Response::setBodyError(void)
 			close(fd);
 		}
 	}
+	//TODO fix this, it's display
 	if (!error_page_found)
 	{
 		this->body.push_back("<html>");
-		this->body.push_back("<head><title>" + this->status_codes[this->response_code] + "</title></head>");
+		this->body.push_back("<head><title>" + (std::string)this->status_line + "</title></head>");
 		this->body.push_back("<body>");
-		this->body.push_back("<center><h1>" + this->status_codes[this->response_code] + "</h1></center>");
+		this->body.push_back("<center><h1>" + (std::string)this->status_line + "</h1></center>");
 		this->body.push_back("<center><hr>webserv/1.0</center>");
 		this->body.push_back("</body>");
 		this->body.push_back("</html>");
@@ -669,7 +633,7 @@ void	Response::parseCgiHeaders(void)
 
 void	Response::setContentLen(void)
 {
-	if (this->response_code != 204)
+	if ((size_t)this->status_line != 204)
 		this->headers["Content-Length"] = this->getBodyLen();
 }
 
@@ -826,11 +790,11 @@ void	Response::locationMatch(const std::map<Server*, std::vector<std::string> >&
 
 void	Response::setLocation(void)
 {
-	if (this->response_code != 301 && this->response_code != 201)
+	if ((size_t)this->status_line != 301 && (size_t)this->status_line != 201)
 		return;
 
 	std::string location = "http://" + this->req.getHeader("Host") + this->req.getPath();
-	if (this->response_code == 301)
+	if ((size_t)this->status_line == 301)
 	{
 		location += "/";
 		this->headers["Location"] = this->headers["Referer"] = location;
@@ -850,7 +814,7 @@ void	Response::setLocation(void)
 
 void	Response::setModified(void)
 {
-	if (this->response_code != 200 || this->is_dir || this->req.getMethod() == "POST")
+	if (this->status_line.tier() != ST_SUCCES || this->is_dir || this->req.getMethod() == "POST")
 		return;
 
 	struct stat	result;

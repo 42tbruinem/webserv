@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 17:54:08 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:33:59 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int		Client::receive(const std::map<Server*, std::vector<std::string> >& server_
 		if (!requests.front().process())
 			return (-1);
 		responses.push(Response(requests.front()));
-		responses.back().setRequest(requests.front());
+//		responses.back().setRequest(requests.front());
 		responses.back().locationMatch(server_names);
 		responses.back().composeResponse();
 		requests.pop();
@@ -96,8 +96,8 @@ int		Client::send()
 			return (-1);
 		if (!current_response.getFinished())
 			break ;
-		if (current_response.getStatusCode() != 400)
-			std::cout << "[" << current_response.getStatusCode() << "] Response send!" << std::endl;
+		if (current_response.status_line.tier() != ST_SUCCES)
+			std::cout << "[" << (size_t)current_response.status_line << "] Response send!" << std::endl;
 		responses.pop();
 	}
 	return (!responses.size());

@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:08:13 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/03/27 20:09:15 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 18:53:12 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <string>
 #include <utility>
 #include <map>
-
 //virtual base class for Response/Request
 
 //split into protected/public

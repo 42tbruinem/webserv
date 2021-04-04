@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/03 21:37:19 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/04 19:19:12 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <map>
 # include "Request.hpp"
 # include "Location.hpp"
+# include "StatusLine.hpp"
 
 class Server;
 
@@ -30,18 +31,15 @@ class Response : public Message
 		static void	setSigpipe(int);
 		bool	sendResponse(int fd);
 		void	composeResponse(void);
-		void	setRequest(Request& req);
-		int		getStatusCode() const;
+//		void	setRequest(Request& req);
 		bool	getFinished(void);
 		void	locationMatch(const std::map<Server*, std::vector<std::string> >& server_names);
 		Server*	serverMatch(const std::map<Server*, std::vector<std::string> >& server_names);
+		StatusLine					status_line;
 
 	private:
 		Request						req;
-		std::map<int, std::string>	status_codes;
-		std::string					status_line;
 		std::string					path;
-		int							response_code;
 		std::string 				server_name;
 		Location*					location_block;
 		bool						is_dir;
@@ -58,7 +56,6 @@ class Response : public Message
 
 		void	handlePut(void);
 
-		void	setStatusLine(void);
 		void	setServer(void);
 		void	setDate(void);
 		void	setContentType(void);
