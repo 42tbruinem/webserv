@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:37:38 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 13:47:03 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 16:08:55 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Request::Request(const Request& other) : uri(""), method(GET)
 	*this = other;
 }
 
-//		Operators
+//------------------------------------------------------------Operators------------------------------------------------------------
 
 Request& Request::operator = (const Request& other)
 {
@@ -65,7 +65,7 @@ Request& Request::operator = (const Request& other)
 	return (*this);
 }
 
-//		Parsing
+//------------------------------------------------------------Parsing------------------------------------------------------------
 
 bool	Request::parseHeader(std::string& line)
 {
@@ -230,12 +230,11 @@ int		Request::findEndOfRequest(std::string& buffer)
 	}
 	if (end_of_headers)
 	{
-		int ret;
-		ret = bodyEnd(to_search);
-		if (ret <= 0)
+		tmp = bodyEnd(to_search);
+		if (tmp <= 0)
 		{
 			buffer.clear();
-			return (ret);
+			return (tmp);
 		}
 		buffer = to_search;
 		return (1);
@@ -368,7 +367,6 @@ void	Request::printRequest(void) const
 		std::cout << "  No body" << std::endl;
 }
 
-bool									Request::getDone() const { return this->done; }
 std::string								Request::getMethod() const { return this->method.getStr(); }
 std::string								Request::getPath() const { return this->path; }
 int										Request::getStatusCode() const { return this->status_code; }

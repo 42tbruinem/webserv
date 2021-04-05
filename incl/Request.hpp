@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 20:21:32 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 16:29:20 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@
 # include <string>
 # include <vector>
 
-//Read the request, processing it until it's done
+//Take only the bytes that make up this Request
+//Process the Request (parse)
 
 class Request : public Message
 {
@@ -39,7 +40,6 @@ class Request : public Message
 		int				bodyEnd(std::string& bytes);
 		int				findEndOfRequest(std::string& buffer);
 
-		bool								getDone(void) const;
 		std::string							getMethod(void) const;
 		std::string							getPath(void) const;
 		int									getStatusCode(void) const;
