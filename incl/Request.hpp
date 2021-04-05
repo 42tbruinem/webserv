@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/02 19:12:31 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/05 16:29:20 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 19:21:27 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 //Take only the bytes that make up this Request
 //Process the Request (parse)
+//
 
 class Request : public Message
 {
