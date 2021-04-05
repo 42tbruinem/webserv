@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/04/04 20:32:39 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 20:39:50 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 15:49:39 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,24 @@
 
 #include <arpa/inet.h>
 #include <stddef.h>
+#include <string>
+#include <utility>
+
+class Server;
 
 class Socket
 {
 	public:
 		Socket();
-		Socket();
+		Socket(Server *server);
 		~Socket();
+		operator ssize_t() const;
+		bool	startListening(Server& server);
+
+	private:
 		Socket& operator = (const Socket& other);
 		Socket(const Socket& other);
 
-		operator ssize_t() const;
-	private:
 		ssize_t				fd;
 		socklen_t			size;
 		struct sockaddr_in	address;

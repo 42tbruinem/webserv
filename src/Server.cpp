@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 16:21:50 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 22:00:17 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 16:01:43 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,7 @@
 
 //Constructors
 
-#define IP4_LOCALHOST_ADDRESS "127.0.0.1"
-
-Server::Server(Context& parent) : Context(parent)
+Server::Server(Context& parent) : Context(parent), socket()
 {
 	this->keywords.push_back("location");
 	this->keywords.push_back("listen");
@@ -39,54 +37,4 @@ Server::Server(Context& parent) : Context(parent)
 	this->keywords.push_back("auth_basic_user_file");
 }
 
-//Destructor
-
-Server::~Server()
-{
-	if (this->fd != -1 && close(this->fd) == -1)
-		throw std::runtime_error("Error: close returned an error in ~Server");
-}
-
-//Utils
-
-//TODO move to Socket
-
-bool	Server::init()
-{
-	int 	opt = 1;
-
-	// Create socket file descriptor
-	this->fd = socket(PF_INET, SOCK_STREAM, 0);
-	if (this->fd == -1)
-		throw std::runtime_error("Error: Creation of socket failed");
-
-	// Set additional options for the socket and the socket type
-	if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
-		throw std::runtime_error("Error: Failed to set socket options");
-
-	// Assign transport address
-	this->address.sin_family = AF_INET;
-	if (this->properties.ip_port.first == "localhost")
-		this->properties.ip_port.first = IP4_LOCALHOST_ADDRESS;
-	this->address.sin_addr.s_addr = (this->properties.ip_port.first == "0.0.0.0") ? INADDR_ANY : inet_addr(this->properties.ip_port.first.c_str());
-	this->address.sin_port = htons(ft::stoi(this->properties.ip_port.second));
-	memset(this->address.sin_zero, '\0', sizeof(this->address.sin_zero));
-
-	//Set the resulting socketfd to be non blocking
-	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
-		throw std::runtime_error("Error: Could not set server-socket to O_NONBLOCK");
-	// Attach socket to transport address
-	if (bind(this->fd, reinterpret_cast<struct sockaddr*>(&this->address), sizeof( this->address )) == -1)
-	{
-		close(this->fd);
-		this->fd = -1;
-		return false;
-	}
-
-	if (listen(this->fd, MAX_CONNECTIONS) == -1)
-		throw std::runtime_error("Error: could not set server-socket to listening mode");
-	std::cout << "Server created!" << std::endl << std::endl;
-
-
-	return true;
-}
+Server::~Server() {}

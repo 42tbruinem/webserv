@@ -26,6 +26,8 @@
 #include "WebServer.hpp"
 #include "Utilities.hpp"
 
+#define IP4_LOCALHOST_ADDRESS "127.0.0.1"
+
 //Parent Context
 Context::Context() : properties(), parent(*this) {}
 
@@ -93,6 +95,8 @@ Context *Context::key_listen(const std::list<std::string>& args)
 		else
 			this->properties.ip_port.first = ip_port;
 	}
+	if (this->properties.ip_port.first == "localhost")
+		this->properties.ip_port.first = IP4_LOCALHOST_ADDRESS;
 	return (NULL);
 }
 

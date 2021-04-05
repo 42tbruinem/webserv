@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/04 23:28:03 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/04/04 19:40:54 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 16:04:06 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -522,7 +522,7 @@ void	Response::setBodyError(void)
 			close(fd);
 		}
 	}
-	//TODO fix this, it's display
+	//TODO fix this, it's displaying the entire status_line instead of just the code and the reason_phrase
 	if (!error_page_found)
 	{
 		this->body.push_back("<html>");

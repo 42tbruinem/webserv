@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 17:36:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 22:39:13 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 16:03:34 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,7 @@
 #include <exception>
 #include "Response.hpp"
 
-//TODO move to Socket
-
-Client::Client(Server* server) : current_request()
-{
-	socklen_t	addr_len;
-
-	memset(&this->address, '\0', sizeof(this->address));
-	addr_len = sizeof(this->address);
-	this->fd = accept(server->fd, (struct sockaddr*)&this->address, &addr_len);
-	if (this->fd == -1)
-		throw std::runtime_error("Error: failed to open a new client connection");
-	if (fcntl(this->fd, F_SETFL, O_NONBLOCK) == -1)
-		throw std::runtime_error("Error: Could not set client-socket to O_NONBLOCK");
-}
+Client::Client(Server* server) : current_request(), socket(server) {}
 
 bool	Client::createRequests(void)
 {
@@ -41,7 +28,7 @@ bool	Client::createRequests(void)
 	ssize_t		ret;
 	std::string	bytes;
 
-	ret = read(this->fd, buffer, PIPE_CAPACITY_MAX);
+	ret = read(this->socket, buffer, PIPE_CAPACITY_MAX);
 	if (ret == -1 && g_sigpipe)
 		return (false);
 	if (ret == -1)
@@ -96,7 +83,7 @@ int		Client::send()
 	while (responses.size())
 	{
 		Response& current_response = responses.front();
-		if (!current_response.sendResponse(fd))
+		if (!current_response.sendResponse(socket))
 			return (-1);
 		if (!current_response.getFinished())
 			break ;
@@ -107,12 +94,4 @@ int		Client::send()
 	return (!responses.size());
 }
 
-int		Client::getFd()
-{
-	return (this->fd);
-}
-
-Client::~Client()
-{
-	close(this->fd);
-}
+Client::~Client() {}

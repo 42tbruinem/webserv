@@ -6,7 +6,7 @@
 /*   By: novan-ve <marvin@codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/01 20:30:08 by novan-ve      #+#    #+#                 */
-/*   Updated: 2021/03/27 11:30:39 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 15:31:12 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include "Request.hpp"
 # include "Location.hpp"
 # include "Utilities.hpp"
+# include "Socket.hpp"
 
 #ifndef MAX_CONNECTIONS
 # define MAX_CONNECTIONS 200
@@ -40,9 +41,8 @@ class Server : public Context
 		bool	init();
 
 		std::map<std::string, Location*, ft::SizeCompare>	locations;
-		ssize_t												fd;
+		Socket			socket;
 	private:
-		struct sockaddr_in									address;
 
 		Server(const Server &src);
 		Server&	operator = (const Server &rhs);

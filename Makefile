@@ -6,7 +6,7 @@
 #    By: novan-ve <marvin@codam.nl>                   +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/02/01 20:11:54 by novan-ve      #+#    #+#                  #
-#    Updated: 2021/04/04 18:30:39 by tbruinem      ########   odam.nl          #
+#    Updated: 2021/04/05 15:43:45 by tbruinem      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,7 @@ HEADER =	Server.hpp \
 			Properties.hpp \
 			StatusLine.hpp \
 			IOSet.hpp \
+			Socket.hpp \
 			Request.hpp \
 			Response.hpp \
 			URI.hpp \
@@ -49,6 +50,7 @@ SRC =	main.cpp \
 		configuration/Context.cpp \
 		Properties.cpp \
 		StatusLine.cpp \
+		Socket.cpp \
 		URI.cpp \
 		Client.cpp \
 		Server.cpp \

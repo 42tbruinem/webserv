@@ -6,7 +6,7 @@
 /*   By: tbruinem <tbruinem@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/02/03 16:00:59 by tbruinem      #+#    #+#                 */
-/*   Updated: 2021/04/04 15:21:02 by tbruinem      ########   odam.nl         */
+/*   Updated: 2021/04/05 15:43:20 by tbruinem      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,10 @@ activity(ioset)
 	{
 		Server *current_server =  reinterpret_cast<Server*>(this->children[i]);
 		this->server_names[current_server] = this->properties.server_names;
-		if (current_server->init())
+		if (current_server->socket.startListening(*current_server))
 		{
-			this->ioset[SET_READ][current_server->fd] = SET;
-			this->servers[current_server->fd] = current_server;
+			this->ioset[SET_READ][current_server->socket] = SET;
+			this->servers[current_server->socket] = current_server;
 		}
 	}
 	if (this->servers.empty())
@@ -104,10 +104,10 @@ void	WebServer::addNewClients()
 	for (std::map<int, Server*>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		Server*	server = it->second;
-		if (!activity[SET_READ][server->fd])
+		if (!activity[SET_READ][server->socket])
 			continue ;
 		new_client = new Client(server);
-		client_fd = new_client->getFd();
+		client_fd = new_client->socket;
 		this->clients[client_fd] = new_client;
 		ioset[SET_READ][client_fd] = SET;
 	}
